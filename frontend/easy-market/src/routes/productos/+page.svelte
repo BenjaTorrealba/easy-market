@@ -1,113 +1,120 @@
 <script>
-    import Icon from '@iconify/svelte';
+  let productos = [
+    { id: 1, nombre: "Laptop", precio: 750000, stock: 5 },
+    { id: 2, nombre: "Mouse", precio: 12000, stock: 50 },
+    { id: 3, nombre: "Teclado Mecánico", precio: 30000, stock: 20 },
+  ];
+</script>
 
-    let productos = [
-      {
-        id: 1,
-        nombre: 'Pan marraqueta',
-        categoria: 'Panadería',
-        stock: 35,
-        precio: 500,
-        activo: true
-      },
-      {
-        id: 2,
-        nombre: 'Coca Cola 1.5L',
-        categoria: 'Bebidas',
-        stock: 12,
-        precio: 1500,
-        activo: true
-      }
-    ];
-  
+<div class="p-8 max-w-6xl mx-auto"><script>
+  let productos = [
+    { id: 1, nombre: "Laptop", precio: 750000, stock: 5 },
+    { id: 2, nombre: "Mouse", precio: 12000, stock: 50 },
+    { id: 3, nombre: "Teclado Mecánico", precio: 30000, stock: 20 },
+  ];
+</script>
 
-  </script>
-  
-  <h2>Lista de Productos</h2>
-  
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Categoría</th>
-        <th>Stock</th>
-        <th>Precio ($)</th>
-        <th>Activo</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each productos as producto, index}
+<div class="p-8 max-w-6xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-black">
+    Lista de Productos
+  </h1>
+  <div class="mb-4">
+    <button
+      class="bg-indigo-600 hover:bg-indigo-800 text-white px-6 py-2 rounded-md text-sm transition"
+    >
+      Agregar Producto
+    </button>
+  </div>
+  <div class="overflow-x-auto">
+    <table
+      class="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden"
+    >
+      <thead
+        class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm uppercase"
+      >
         <tr>
-          <td>{producto.id}</td>
-          <td>{producto.nombre}</td>
-          <td>{producto.categoria}</td>
-          <td>
-            <input type="number" bind:value={producto.stock} min="0" />
-            <button>
-                <Icon icon="mdi:refresh" width="18" />
-              </button>
-          </td>
-          <td>
-            <input type="number" bind:value={producto.precio} min="0" />
-            <button>
-                <Icon icon="mdi:refresh" width="18" />
-              </button>
-        </td>
-          
-          <td>
-            <input type="checkbox" bind:checked={producto.activo} />
-          </td>
-
+          <th class="py-4 px-6 text-left">ID</th>
+          <th class="py-4 px-6 text-left">Nombre</th>
+          <th class="py-4 px-6 text-left">Precio</th>
+          <th class="py-4 px-6 text-left">Stock</th>
         </tr>
-      {/each}
-    </tbody>
-  </table>
-  
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-  
-    th, td {
-      padding: 0.8rem;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-    }
-  
-    th {
-      background-color: #f3f4f6;
-      color: #111827;
-    }
-  
-    input[type="number"] {
-      width: 80px;
-      padding: 0.3rem;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-    }
-  
-    input[type="checkbox"] {
-      transform: scale(1.2);
-    }
-  
-    button {
-      background-color: #38bdf8;
-      border: none;
-      padding: 0.4rem 1rem;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-  
-    button:hover {
-      background-color: #0ea5e9;
-    }
-  </style>
-  
+      </thead>
+      <tbody class="text-gray-800 dark:text-gray-100 text-base">
+        {#each productos as producto}
+          <tr
+            class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition"
+          >
+            <td class="py-4 px-6">{producto.id}</td>
+            <td class="py-4 px-6">{producto.nombre}</td>
+            <td class="py-4 px-6"
+              >${producto.precio.toLocaleString()}
+              <a
+                href="/login"
+                class="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-md text-sm transition"
+              >
+                Editar
+              </a></td>
+
+            <td class="py-4 px-6">{producto.stock}
+              <a href="/login"
+                class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm transition">
+                Notificar </a>
+              </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-black">
+    Lista de Productos
+  </h1>
+  <div class="mb-4">
+    <button
+      class="bg-indigo-600 hover:bg-indigo-800 text-white px-6 py-2 rounded-md text-sm transition"
+    >
+      Agregar Producto
+    </button>
+  </div>
+  <div class="overflow-x-auto">
+    <table
+      class="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden"
+    >
+      <thead
+        class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm uppercase"
+      >
+        <tr>
+          <th class="py-4 px-6 text-left">ID</th>
+          <th class="py-4 px-6 text-left">Nombre</th>
+          <th class="py-4 px-6 text-left">Precio</th>
+          <th class="py-4 px-6 text-left">Stock</th>
+        </tr>
+      </thead>
+      <tbody class="text-gray-800 dark:text-gray-100 text-base">
+        {#each productos as producto}
+          <tr
+            class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition"
+          >
+            <td class="py-4 px-6">{producto.id}</td>
+            <td class="py-4 px-6">{producto.nombre}</td>
+            <td class="py-4 px-6"
+              >${producto.precio.toLocaleString()}
+              <a
+                href="/login"
+                class="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-md text-sm transition"
+              >
+                Editar
+              </a></td>
+
+            <td class="py-4 px-6">{producto.stock}
+              <a href="/login"
+                class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm transition">
+                Notificar </a>
+              </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+</div>
