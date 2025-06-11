@@ -1,12 +1,16 @@
 <script>
-  import AgregarProducto from '$lib/AgregarProducto.svelte';
-  import Alerta from '$lib/Alerta.svelte';
+  import AgregarProducto from "$lib/AgregarProducto.svelte";
+  import Alerta from "$lib/Alerta.svelte";
+  import { api as Api } from "$lib/api.js";
 
-  let productos = [
-    { id: 1, nombre: "Laptop", precio: 750000, stock: 5, codigoBarras: "1234567890" },
-    { id: 2, nombre: "Mouse", precio: 12000, stock: 50, codigoBarras: "2345678901" },
-    { id: 3, nombre: "Teclado Mecánico", precio: 30000, stock: 20, codigoBarras: "3456789012" },
-  ];
+  let productos = [];
+  Api.getProductos()
+    .then((response) => {
+      productos = response; // <-- Cambiado aquí
+    })
+    .catch((error) => {
+      console.error("Error al cargar los productos:", error);
+    });
 
   let mostrarModal = false;
   let mostrarAlerta = false;
@@ -16,7 +20,7 @@
     productos = [producto, ...productos];
     mensajeAlerta = "¡Producto agregado exitosamente!";
     mostrarAlerta = true;
-    setTimeout(() => mostrarAlerta = false, 2000);
+    setTimeout(() => (mostrarAlerta = false), 2000);
   }
 </script>
 
@@ -27,18 +31,16 @@
 {#if mostrarModal}
   <AgregarProducto
     onAgregar={agregarProducto}
-    onClose={() => mostrarModal = false}
+    onClose={() => (mostrarModal = false)}
   />
 {/if}
 
 <div class="p-8 max-w-6xl mx-auto">
-  <h1 class="text-3xl font-bold mb-6 text-gray-800">
-    Lista de Productos
-  </h1>
+  <h1 class="text-3xl font-bold mb-6 text-gray-800">Lista de Productos</h1>
   <div class="mb-4 flex justify-end">
     <button
       class="bg-indigo-600 hover:bg-indigo-800 text-white px-6 py-2 rounded-md text-sm transition"
-      on:click={() => mostrarModal = true}
+      on:click={() => (mostrarModal = true)}
     >
       Agregar Producto
     </button>
@@ -61,7 +63,7 @@
             <td class="py-4 px-6">{producto.nombre}</td>
             <td class="py-4 px-6">${producto.precio.toLocaleString()}</td>
             <td class="py-4 px-6">{producto.stock}</td>
-            <td class="py-4 px-6">{producto.codigoBarras}</td>
+            <td class="py-4 px-6">{producto.codigo_barras}</td>
           </tr>
         {/each}
       </tbody>
