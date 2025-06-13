@@ -60,6 +60,15 @@
 <div class="p-6">
   <h1 class="text-2xl font-bold mb-4">Realizar Venta</h1>
 
+  <div class="mb-6">
+    <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h2M3 17h2M7 3v2m10-2v2m4 4h2m-2 10h2M7 21v-2m10 2v-2M12 8v4l3 3" />
+      </svg>
+      <span><strong>Escanee el producto</strong> para que se agregue al carrito</span>
+    </div>
+  </div>
+
   {#if mensaje}
     <div class="mb-4 text-center text-green-700 font-semibold">{mensaje}</div>
   {/if}
