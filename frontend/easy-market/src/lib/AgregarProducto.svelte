@@ -1,4 +1,7 @@
 <script>
+  import { onMount } from "svelte";
+  import { api } from "$lib/api.js";
+
   export let onAgregar;
   export let onClose;
 
@@ -6,20 +9,28 @@
   let precio = "";
   let stock = "";
   let codigoBarras = "";
+  let categoriaID = "";
+  let categorias = [];
+
+  onMount(async () => {
+    categorias = await api.getCategorias();
+    if (categorias.length > 0) categoriaID = categorias[0].id;
+  });
 
   function agregar() {
-    if (!nombre || !precio || !stock || !codigoBarras) return;
+    if (!nombre || !precio || !stock || !codigoBarras || !categoriaID) return;
     onAgregar({
-      id: Math.floor(Math.random() * 10000),
       nombre,
       precio: Number(precio),
       stock: Number(stock),
-      codigoBarras
+      codigo_barras: codigoBarras,
+      categoria_id: Number(categoriaID)
     });
     nombre = "";
     precio = "";
     stock = "";
     codigoBarras = "";
+    categoriaID = categorias.length > 0 ? categorias[0].id : "";
     onClose();
   }
 </script>
@@ -34,6 +45,14 @@
         placeholder="Nombre"
         bind:value={nombre}
       />
+      <select
+        class="border rounded px-3 py-2 focus:outline-none focus:ring w-full"
+        bind:value={categoriaID}
+      >
+        {#each categorias as cat}
+          <option value={cat.id}>{cat.nombre}</option>
+        {/each}
+      </select>
       <input
         type="number"
         min="0"

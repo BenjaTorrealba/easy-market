@@ -1,13 +1,20 @@
 <script>
-  // Mock data de productos
-  let productos = [
-    { id: 1, nombre: "Producto 1", precio: 10000 },
-    { id: 2, nombre: "Producto 2", precio: 15000 },
-    { id: 3, nombre: "Producto 3", precio: 5000 }
-  ];
+  import { onMount } from "svelte";
+  import { api } from "$lib/api.js";
 
+  let productos = [];
   let filtro = "";
   let carrito = [];
+  let mensaje = "";
+
+  // Cargar productos reales al iniciar
+  onMount(async () => {
+    try {
+      productos = await api.getProductos();
+    } catch (e) {
+      mensaje = "Error al cargar productos";
+    }
+  });
 
   // Productos filtrados por búsqueda
   $: productosFiltrados = productos.filter(p =>
@@ -33,15 +40,29 @@
   // Calcular total
   $: total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
 
-  // Confirmar venta (mock)
-  function confirmarVenta() {
-    alert("¡Venta confirmada!");
-    carrito = [];
+  // Confirmar venta real
+  async function confirmarVenta() {
+    try {
+      await api.createVenta(
+        carrito.map(({ id, cantidad }) => ({ id, cantidad })),
+        total
+      );
+      mensaje = "¡Venta confirmada!";
+      carrito = [];
+      // Recargar productos para actualizar stock
+      productos = await api.getProductos();
+    } catch (e) {
+      mensaje = "Error al realizar la venta";
+    }
   }
 </script>
 
 <div class="p-6">
   <h1 class="text-2xl font-bold mb-4">Realizar Venta</h1>
+
+  {#if mensaje}
+    <div class="mb-4 text-center text-green-700 font-semibold">{mensaje}</div>
+  {/if}
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- 🛍️ Columna de productos -->
