@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"encoding/json"
+    "fmt"
+    "net/http"
+    "encoding/json"
+    "strconv"
 )
 
 func setupRoutes() {
@@ -16,6 +17,8 @@ func setupRoutes() {
 	http.HandleFunc("/api/ventas", corsMiddleware(ventasHandler))
 	http.HandleFunc("/api/boletas", corsMiddleware(boletasHandler))
 	http.HandleFunc("/api/productos/bajo-stock", corsMiddleware(getProductosBajoStock))
+	http.HandleFunc("/api/pedidos", corsMiddleware(pedidosHandler))
+	http.HandleFunc("/api/pedidos/estado", corsMiddleware(updateEstadoPedido))
 }
 
 func categoriasHandler(w http.ResponseWriter, r *http.Request) {
@@ -83,4 +86,44 @@ func boletasHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 	}
+}
+func pedidosHandler(w http.ResponseWriter, r *http.Request) {
+    switch r.Method {
+    case "GET":
+        getPedidos(w, r)
+    case "POST":
+        createPedido(w, r)
+    default:
+        http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+    }
+}
+func updateEstadoPedido(w http.ResponseWriter, r *http.Request) {
+    if r.Method != "PUT" {
+        http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+        return
+    }
+    
+    idStr := r.URL.Query().Get("id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        http.Error(w, "ID inválido", http.StatusBadRequest)
+        return
+    }
+    
+    var req struct {
+        Estado string `json:"estado"`
+    }
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    
+    _, err = db.Exec("UPDATE Pedido SET Estado = ? WHERE ID = ?", req.Estado, id)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"message": "Estado actualizado"})
 }

@@ -24,7 +24,12 @@ class ApiClient {
       throw error;
     }
   }
-
+ async updateEstadoPedido(id, estado) {
+    return this.request(`/pedidos/estado?id=${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ estado }),
+    });
+  }
   async getCategorias() {
     return this.request('/categorias');
   }
@@ -35,7 +40,17 @@ class ApiClient {
       body: JSON.stringify({ nombre }),
     });
   }
+  
+    async getPedidos() {
+    return this.request('/pedidos');
+  }
 
+async createPedido(pedido) {
+  return this.request('/pedidos', {
+    method: 'POST',
+    body: JSON.stringify(pedido),
+  });
+}
 
   async getProductos() {
     return this.request('/productos');
@@ -90,4 +105,5 @@ export const productosStore = {
       throw error;
     }
   }
+  
 };

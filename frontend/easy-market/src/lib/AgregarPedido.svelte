@@ -40,16 +40,23 @@
     return cat ? cat.nombre : id;
   }
 
-  function agregar() {
+    function agregar() {
     if (!distribuidor || seleccionados.length === 0 || !fechaEstimada) return;
+
+    // Transformar productos al formato correcto
+    const productosParaEnvio = seleccionados.map(p => ({
+      producto_id: p.id,
+      cantidad: p.cantidad
+    }));
+
     onAgregar({
-      id: Math.floor(Math.random() * 10000),
       distribuidor,
-      productos: seleccionados,
-      estado: "Pendiente",
       fecha: fechaPedido,
       fechaEstimada,
+      estado: "Pendiente",
+      productos: productosParaEnvio
     });
+
     distribuidor = "";
     fechaEstimada = "";
     seleccionados = [];

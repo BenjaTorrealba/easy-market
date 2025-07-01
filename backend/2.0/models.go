@@ -39,3 +39,29 @@ type VentaResponse struct {
 	Message  string `json:"message"`
 	BoletaID int64  `json:"boleta_id"`
 }
+
+type ProductoPedido struct {
+    ID       int    `json:"id"`
+    Nombre   string `json:"nombre"`
+    Cantidad int    `json:"cantidad"`
+}
+
+type Pedido struct {
+    ID            int              `json:"id"`
+    Distribuidor  string           `json:"distribuidor"`
+    Fecha         string           `json:"fecha"`
+    FechaEstimada string           `json:"fechaEstimada"`
+    Estado        string           `json:"estado"`
+    Productos     []ProductoPedido `json:"productos,omitempty"`
+}
+
+type PedidoRequest struct {
+    Distribuidor  string `json:"distribuidor"`
+    Fecha         string `json:"fecha"`
+    FechaEstimada string `json:"fechaEstimada"`
+    Estado        string `json:"estado"`
+    Productos     []struct {
+        ProductoID int `json:"producto_id"`
+        Cantidad   int `json:"cantidad"`
+    } `json:"productos"`
+}

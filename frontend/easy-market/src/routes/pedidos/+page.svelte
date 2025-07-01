@@ -6,48 +6,52 @@
 
   let productosBajoStock = [];
 
-  let pedidos = [
-    {
-      id: 101,
-      distribuidor: "Pepsico",
-      productos: ["Refresco", "Papas"],
-      estado: "Entregado",
-      fecha: "2025-06-07",
-      fechaEstimada: "2025-06-07"
-    },
-    {
-      id: 102,
-      distribuidor: "Panadería San Juan",
-      productos: ["Pan de caja", "Bollos"],
-      estado: "Pendiente",
-      fecha: "2025-06-06",
-      fechaEstimada: "2025-06-10"
-    }
-  ];
-
-  onMount(async () => {
-    try {
-      productosBajoStock = await api.getProductosBajoStock();
-    } catch (e) {
-      productosBajoStock = [];
-    }
-  });
+  let pedidos = [];
 
   let mostrarAlerta = false;
   let mensajeAlerta = "";
-  let mostrarModal = false;
+  let mostrarModal = false; // 
+  onMount(async () => {
+    try {
+      productosBajoStock = await api.getProductosBajoStock();
+      pedidos = await api.getPedidos();      
+    } catch (e) {
+      productosBajoStock = [];
+      pedidos = [];
+    }
+  });
 
-  function agregarPedido(pedido) {
-    pedidos = [pedido, ...pedidos];
+
+
+async function agregarPedido(pedido) {
+  try {
+    const nuevoPedido = await api.createPedido(pedido);
+    pedidos = [nuevoPedido, ...pedidos]; // <-- Esto agrega el nuevo pedido arriba
     mensajeAlerta = "¡Pedido agregado exitosamente!";
     mostrarAlerta = true;
     setTimeout(() => mostrarAlerta = false, 2000);
+  } catch (e) {
+    mensajeAlerta = "Error al agregar pedido";
+    mostrarAlerta = true;
+    setTimeout(() => mostrarAlerta = false, 2000);
   }
+}
 
-  function confirmarEntrega(id) {
-    pedidos = pedidos.map(p =>
-      p.id === id ? { ...p, estado: "Entregado" } : p
-    );
+  async function confirmarEntrega(id) {
+    try {
+      await api.updateEstadoPedido(id, "Entregado");
+      pedidos = pedidos.map(p =>
+        p.id === id ? { ...p, estado: "Entregado" } : p
+      );
+      
+      mensajeAlerta = "¡Entrega confirmada exitosamente!";
+      mostrarAlerta = true;
+      setTimeout(() => mostrarAlerta = false, 2000);
+    } catch (e) {
+      mensajeAlerta = "Error al confirmar entrega";
+      mostrarAlerta = true;
+      setTimeout(() => mostrarAlerta = false, 2000);
+    }
   }
 </script>
 
@@ -126,7 +130,13 @@
             <tr class="hover:bg-blue-100/40 transition">
               <td class="border-t px-6 py-3">{pedido.fecha}</td>
               <td class="border-t px-6 py-3">{pedido.distribuidor}</td>
-              <td class="border-t px-6 py-3">{pedido.productos.join(", ")}</td>
+              <td class="border-t px-6 py-3">
+  {#if Array.isArray(pedido.productos) && pedido.productos.length > 0}
+    {pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(", ")}
+  {:else}
+    <span class="text-gray-400">Sin productos</span>
+  {/if}
+</td>
               <td class="border-t px-6 py-3">{pedido.fechaEstimada}</td>
               <td class="border-t px-6 py-3">
                 {#if pedido.estado === "Entregado"}
