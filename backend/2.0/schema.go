@@ -32,6 +32,28 @@ CREATE TABLE IF NOT EXISTS DetalleVenta (
     FOREIGN KEY (ID_Producto) REFERENCES Producto(ID),
     FOREIGN KEY (ID_Boleta) REFERENCES Boleta(ID)
 );
+CREATE TABLE IF NOT EXISTS Usuario (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    NombreUsuario TEXT NOT NULL UNIQUE,
+    Password TEXT NOT NULL,
+    Rol TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS Pedido (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Distribuidor TEXT NOT NULL,
+    Fecha TEXT NOT NULL,
+    FechaEstimada TEXT,
+    Estado TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS PedidoProducto (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    PedidoID INTEGER NOT NULL,
+    ProductoID INTEGER NOT NULL,
+    Cantidad INTEGER NOT NULL,
+    FOREIGN KEY (PedidoID) REFERENCES Pedido(ID),
+    FOREIGN KEY (ProductoID) REFERENCES Producto(ID)
+);
 `
 
 func createTables(database *sql.DB) error {

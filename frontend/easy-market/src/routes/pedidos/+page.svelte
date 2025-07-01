@@ -1,12 +1,10 @@
 <script>
   import Alerta from '$lib/Alerta.svelte';
   import AgregarPedido from '$lib/AgregarPedido.svelte';
+  import { api } from '$lib/api.js';
+  import { onMount } from 'svelte';
 
-  let productosBajoStock = [
-    { id: 1, nombre: "Galletas", stock: 3 },
-    { id: 2, nombre: "Refresco", stock: 2 },
-    { id: 3, nombre: "Pan de caja", stock: 1 }
-  ];
+  let productosBajoStock = [];
 
   let pedidos = [
     {
@@ -26,6 +24,14 @@
       fechaEstimada: "2025-06-10"
     }
   ];
+
+  onMount(async () => {
+    try {
+      productosBajoStock = await api.getProductosBajoStock();
+    } catch (e) {
+      productosBajoStock = [];
+    }
+  });
 
   let mostrarAlerta = false;
   let mensajeAlerta = "";
@@ -92,8 +98,7 @@
   <div class="flex justify-end">
     <button
       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow font-semibold transition"
-      on:click={() => mostrarModal = true}
-    >
+      on:click={() => mostrarModal = true}>
       Agregar pedido
     </button>
   </div>
@@ -134,8 +139,7 @@
                 {#if pedido.estado === "Pendiente"}
                   <button
                     class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
-                    on:click={() => confirmarEntrega(pedido.id)}
-                  >
+                    on:click={() => confirmarEntrega(pedido.id)}>
                     Confirmar entrega
                   </button>
                 {/if}

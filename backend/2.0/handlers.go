@@ -140,7 +140,6 @@ func deleteProducto(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Producto eliminado"})
 }
 
-// Handler para crear una venta
 func createVenta(w http.ResponseWriter, r *http.Request) {
 	var venta VentaRequest
 
@@ -149,7 +148,6 @@ func createVenta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Iniciar transacción
 	tx, err := db.Begin()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -157,7 +155,6 @@ func createVenta(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback()
 
-	// Crear boleta
 	result, err := tx.Exec("INSERT INTO Boleta (Fecha, Total) VALUES (?, ?)", time.Now(), venta.Total)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -166,9 +163,9 @@ func createVenta(w http.ResponseWriter, r *http.Request) {
 
 	boletaID, _ := result.LastInsertId()
 
-	// Crear detalles de venta y actualizar stock
+
 	for _, prod := range venta.Productos {
-		// Verificar stock disponible
+
 		var stockActual int
 		err = tx.QueryRow("SELECT Stock FROM Producto WHERE ID = ?", prod.ID).Scan(&stockActual)
 		if err != nil {
@@ -181,7 +178,7 @@ func createVenta(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Insertar detalle de venta
+
 		_, err = tx.Exec("INSERT INTO DetalleVenta (ID_Producto, Cant_Producto, ID_Boleta) VALUES (?, ?, ?)",
 			prod.ID, prod.Cantidad, boletaID)
 		if err != nil {
@@ -189,7 +186,7 @@ func createVenta(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Actualizar stock
+
 		_, err = tx.Exec("UPDATE Producto SET Stock = Stock - ? WHERE ID = ?", prod.Cantidad, prod.ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -197,7 +194,7 @@ func createVenta(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Confirmar transacción
+
 	if err = tx.Commit(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

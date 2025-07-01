@@ -1,6 +1,6 @@
 <script>
   export let mensaje = "";
-  export let tipo = "success"; // success, error, info
+  export let tipo = "success"; 
 </script>
 
 <div class={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg

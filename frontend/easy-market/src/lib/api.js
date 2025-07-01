@@ -1,4 +1,3 @@
-// lib/api.js - Cliente API para tu backend Go
 const API_BASE = 'http://localhost:8080/api';
 
 class ApiClient {
@@ -26,7 +25,6 @@ class ApiClient {
     }
   }
 
-  // Categorías
   async getCategorias() {
     return this.request('/categorias');
   }
@@ -38,7 +36,7 @@ class ApiClient {
     });
   }
 
-  // Productos
+
   async getProductos() {
     return this.request('/productos');
   }
@@ -57,21 +55,21 @@ class ApiClient {
     });
   }
 
-  // Ventas
   async createVenta(productos, total) {
     return this.request('/ventas', {
       method: 'POST',
       body: JSON.stringify({ productos, total }),
     });
   }
+  async getProductosBajoStock() {
+    return this.request('/productos/bajo-stock');
+  }
 }
 
 export const api = new ApiClient();
 
-// Ejemplo de componente Svelte para mostrar productos
 export const productosStore = {
-  // Store para manejar el estado de productos
-  subscribe: null, // Se implementaría con writable store de Svelte
+  subscribe: null, 
   
   async load() {
     try {

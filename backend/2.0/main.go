@@ -18,12 +18,10 @@ func main() {
 	}
 	defer db.Close()
 
-	// Crear tablas
 	if err := createTables(db); err != nil {
 		log.Fatalf("Error creating tables: %s", err)
 	}
 
-	// Configurar rutas
 	setupRoutes()
 
 	log.Println("Server started at http://localhost:8080")
