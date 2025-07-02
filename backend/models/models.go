@@ -1,4 +1,4 @@
-package main
+package models
 
 type Categoria struct {
 	ID     int    `json:"id"`

@@ -37,22 +37,36 @@ async function agregarPedido(pedido) {
   }
 }
 
-  async function confirmarEntrega(id) {
-    try {
-      await api.updateEstadoPedido(id, "Entregado");
-      pedidos = pedidos.map(p =>
-        p.id === id ? { ...p, estado: "Entregado" } : p
-      );
-      
-      mensajeAlerta = "¡Entrega confirmada exitosamente!";
-      mostrarAlerta = true;
-      setTimeout(() => mostrarAlerta = false, 2000);
-    } catch (e) {
-      mensajeAlerta = "Error al confirmar entrega";
-      mostrarAlerta = true;
-      setTimeout(() => mostrarAlerta = false, 2000);
+async function confirmarEntrega(id) {
+  try {
+    await api.updateEstadoPedido(id, "Entregado");
+    pedidos = pedidos.map(p =>
+      p.id === id ? { ...p, estado: "Entregado" } : p
+    );
+    mensajeAlerta = "¡Entrega confirmada exitosamente!";
+    mostrarAlerta = true;
+    setTimeout(() => mostrarAlerta = false, 2000);
+  } catch (e) {
+    mensajeAlerta = "Error al confirmar entrega";
+    mostrarAlerta = true;
+    setTimeout(() => mostrarAlerta = false, 2000);
+  }
+}
+
+async function actualizarStock(PedidoID) {
+  const productosBD = await api.getProductos();
+  const pedido = pedidos.find(p => p.id === PedidoID);
+  if (!pedido) return;
+  for (const productoPedido of pedido.productos) {
+    const productoBD = productosBD.find(p => p.id === productoPedido.id);
+    if (productoBD) {
+      const nuevoStock = (productoBD.stock || 0) + (productoPedido.cantidad || 0);
+      const actualizado = { ...productoBD, stock: nuevoStock };
+      await api.updateProducto(productoBD.id, actualizado);
     }
   }
+  await confirmarEntrega(PedidoID);
+}
 </script>
 
 {#if mostrarAlerta}
@@ -131,12 +145,12 @@ async function agregarPedido(pedido) {
               <td class="border-t px-6 py-3">{pedido.fecha}</td>
               <td class="border-t px-6 py-3">{pedido.distribuidor}</td>
               <td class="border-t px-6 py-3">
-  {#if Array.isArray(pedido.productos) && pedido.productos.length > 0}
-    {pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(", ")}
-  {:else}
-    <span class="text-gray-400">Sin productos</span>
-  {/if}
-</td>
+                {#if Array.isArray(pedido.productos) && pedido.productos.length > 0}
+                  {pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(", ")}
+                {:else}
+                  <span class="text-gray-400">Sin productos</span>
+              {/if}
+              </td>
               <td class="border-t px-6 py-3">{pedido.fechaEstimada}</td>
               <td class="border-t px-6 py-3">
                 {#if pedido.estado === "Entregado"}
@@ -148,9 +162,9 @@ async function agregarPedido(pedido) {
               <td class="border-t px-6 py-3">
                 {#if pedido.estado === "Pendiente"}
                   <button
-                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
-                    on:click={() => confirmarEntrega(pedido.id)}>
-                    Confirmar entrega
+                      class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                      on:click={() => actualizarStock(pedido.id)}>
+                      Confirmar entrega
                   </button>
                 {/if}
               </td>

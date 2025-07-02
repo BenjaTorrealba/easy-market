@@ -1,24 +1,25 @@
 package main
 
 import (
-	"database/sql"
+	"backend/db"
 	"log"
 	"net/http"
+	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
+var Conn *sql.DB
 
 func main() {
 	var err error
-	db, err = sql.Open("sqlite3", "./inventario.db")
+	db.Conn, err = sql.Open("sqlite3", "./inventario.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer db.Conn.Close()
 
-	if err := createTables(db); err != nil {
+	if err := createTables(db.Conn); err != nil {
 		log.Fatalf("Error creating tables: %s", err)
 	}
 

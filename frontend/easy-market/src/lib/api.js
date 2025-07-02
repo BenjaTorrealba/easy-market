@@ -24,12 +24,12 @@ class ApiClient {
       throw error;
     }
   }
- async updateEstadoPedido(id, estado) {
-    return this.request(`/pedidos/estado?id=${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ estado }),
-    });
-  }
+  async updateEstadoPedido(id, estado) {
+  return this.request(`/pedidos/estado?id=${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ estado }),
+  });
+}
   async getCategorias() {
     return this.request('/categorias');
   }

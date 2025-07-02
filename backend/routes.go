@@ -1,32 +1,35 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
-    "encoding/json"
-    "strconv"
+	"backend/db"
+	"backend/handlers"
+    "backend/models"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
 )
 
 func setupRoutes() {
 	http.HandleFunc("/", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Backend API is running!")
 	}))
-
+    http.HandleFunc("/api/productos", corsMiddleware(productosHandler))
 	http.HandleFunc("/api/categorias", corsMiddleware(categoriasHandler))
-	http.HandleFunc("/api/productos", corsMiddleware(productosHandler))
 	http.HandleFunc("/api/ventas", corsMiddleware(ventasHandler))
 	http.HandleFunc("/api/boletas", corsMiddleware(boletasHandler))
 	http.HandleFunc("/api/productos/bajo-stock", corsMiddleware(getProductosBajoStock))
 	http.HandleFunc("/api/pedidos", corsMiddleware(pedidosHandler))
 	http.HandleFunc("/api/pedidos/estado", corsMiddleware(updateEstadoPedido))
+
 }
 
 func categoriasHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		getCategorias(w, r)
+		handlers.GetCategorias(w, r)
 	case "POST":
-		createCategoria(w, r)
+		handlers.CreateCategoria(w, r)
 	default:
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 	}
@@ -35,13 +38,13 @@ func categoriasHandler(w http.ResponseWriter, r *http.Request) {
 func productosHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		getProductos(w, r)
+		handlers.GetProductos(w, r)
 	case "POST":
-		createProducto(w, r)
+		handlers.CreateProducto(w, r)
 	case "PUT":
-		updateProducto(w, r)
+		handlers.UpdateProducto(w, r)
 	case "DELETE":
-		deleteProducto(w, r)
+		handlers.DeleteProducto(w, r)
 	default:
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 	}
@@ -49,16 +52,16 @@ func productosHandler(w http.ResponseWriter, r *http.Request) {
 
 func getProductosBajoStock(w http.ResponseWriter, r *http.Request) {
     const umbral = 5 // Puedes ajustar este valor
-    rows, err := db.Query("SELECT ID, Nombre, CategoriaID, Precio, Stock, COALESCE(CodigoBarras, '') FROM Producto WHERE Stock < ?", umbral)
+    rows, err := db.Conn.Query("SELECT ID, Nombre, CategoriaID, Precio, Stock, COALESCE(CodigoBarras, '') FROM Producto WHERE Stock < ?", umbral)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
     defer rows.Close()
 
-    var productos []Producto
+    var productos []models.Producto
     for rows.Next() {
-        var prod Producto
+        var prod models.Producto
         err := rows.Scan(&prod.ID, &prod.Nombre, &prod.CategoriaID, &prod.Precio, &prod.Stock, &prod.CodigoBarras)
         if err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -73,7 +76,7 @@ func getProductosBajoStock(w http.ResponseWriter, r *http.Request) {
 func ventasHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
-		createVenta(w, r)
+		handlers.CreateVenta(w, r)
 	default:
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 	}
@@ -82,7 +85,7 @@ func ventasHandler(w http.ResponseWriter, r *http.Request) {
 func boletasHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		getBoletas(w, r)
+		handlers.GetBoletas(w, r)
 	default:
 		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
 	}
@@ -90,9 +93,9 @@ func boletasHandler(w http.ResponseWriter, r *http.Request) {
 func pedidosHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case "GET":
-        getPedidos(w, r)
+        handlers.GetPedidos(w, r)
     case "POST":
-        createPedido(w, r)
+        handlers.CreatePedido(w, r)
     default:
         http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
     }
@@ -118,7 +121,7 @@ func updateEstadoPedido(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    _, err = db.Exec("UPDATE Pedido SET Estado = ? WHERE ID = ?", req.Estado, id)
+    _, err = db.Conn.Exec("UPDATE Pedido SET Estado = ? WHERE ID = ?", req.Estado, id)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
