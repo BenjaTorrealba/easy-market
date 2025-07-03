@@ -90,6 +90,9 @@ class ApiClient {
     if (params.length) url += "?" + params.join("&");
     return this.request(url);
   }
+  async getProductosMasVendidos() {
+    return this.request("/reportes/productos-mas-vendidos");
+  }
 }
 
 export const api = new ApiClient();

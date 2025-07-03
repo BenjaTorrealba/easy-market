@@ -115,3 +115,37 @@ func GetHistorialVentas(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(boletas)
 }
+
+func GetProductosMasVendidos(w http.ResponseWriter, r *http.Request) {
+    rows, err := db.Conn.Query(`
+        SELECT p.Nombre, SUM(dv.Cant_Producto) as cantidad
+        FROM DetalleVenta dv
+        JOIN Producto p ON dv.ID_Producto = p.ID
+        GROUP BY p.Nombre
+        ORDER BY cantidad DESC
+        LIMIT 10
+    `)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    defer rows.Close()
+
+    type ProductoMasVendido struct {
+        Nombre   string `json:"nombre"`
+        Cantidad int    `json:"cantidad"`
+    }
+    var productos []ProductoMasVendido
+
+    for rows.Next() {
+        var prod ProductoMasVendido
+        if err := rows.Scan(&prod.Nombre, &prod.Cantidad); err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+        productos = append(productos, prod)
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(productos)
+}

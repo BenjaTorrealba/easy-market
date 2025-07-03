@@ -24,6 +24,7 @@ func setupRoutes() {
     http.HandleFunc("/api/reportes/ventas-totales", corsMiddleware(handlers.GetVentasTotales))
     http.HandleFunc("/api/reportes/ganancia-neta", corsMiddleware(handlers.GetGananciaNeta))
     http.HandleFunc("/api/reportes/historial-ventas", corsMiddleware(handlers.GetHistorialVentas))
+    http.HandleFunc("/api/reportes/productos-mas-vendidos", corsMiddleware(handlers.GetProductosMasVendidos))
 }
 
 func categoriasHandler(w http.ResponseWriter, r *http.Request) {
