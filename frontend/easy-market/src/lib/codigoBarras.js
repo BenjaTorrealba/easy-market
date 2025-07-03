@@ -10,7 +10,19 @@ export function iniciarScanner(onDetected) {
             }
         },
         decoder: {
-            readers: ["ean_reader", "code_128_reader", "upc_reader"] // Puedes agregar más tipos si lo necesitas
+            readers: [
+                "ean_reader",
+                "ean_8_reader",
+                "code_128_reader",
+                "code_39_reader",
+                "code_39_vin_reader",
+                "upc_reader",
+                "upc_e_reader",
+                "codabar_reader",
+                "i2of5_reader",
+                "2of5_reader",
+                "code_93_reader"
+            ] // Puedes agregar más tipos si lo necesitas
         }
     }, function(err) {
         if (err) {
