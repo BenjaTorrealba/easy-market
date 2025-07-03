@@ -69,7 +69,7 @@
   >
     <span class="text-5xl font-bold text-blue-700">{totalVendidos}</span>
     <span class="text-lg text-blue-900 mt-2"
-      >Productos vendidos esta semana</span
+      >Ventas realizadas esta semana</span
     >
   </div>
   <div

@@ -1,8 +1,13 @@
 <script>
-  import { onMount } from "svelte";
-  import { api } from "$lib/api.js";
+  import { onMount } from 'svelte';
+  import { api } from '$lib/api.js';
+  import Chart from 'chart.js/auto';
+  import ChartDataLabels from 'chartjs-plugin-datalabels';
+  window.ChartDataLabels = ChartDataLabels;
 
   let ventasSemana = [];
+  let chart;
+  let canvasEl;
 
   onMount(async () => {
     const hoy = new Date();
@@ -11,20 +16,9 @@
     const fecha_inicio = hace7.toISOString().slice(0, 10);
     const fecha_fin = hoy.toISOString().slice(0, 10);
 
-    const historialVentas = await api.getHistorialVentas(
-      fecha_inicio,
-      fecha_fin
-    );
+    const historialVentas = await api.getHistorialVentas(fecha_inicio, fecha_fin);
 
-    const dias = [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sabado",
-    ];
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     let ventasPorDia = {};
     for (let i = 0; i < 7; i++) {
       const d = new Date(hace7);
@@ -40,24 +34,67 @@
       }
     }
     ventasSemana = Object.values(ventasPorDia);
+
+    // Dibuja el gráfico
+    if (chart) chart.destroy();
+    chart = new Chart(canvasEl, {
+      type: 'bar',
+      data: {
+        labels: ventasSemana.map(v => v.dia),
+        datasets: [{
+          label: 'Total vendido ($)',
+          data: ventasSemana.map(v => v.total),
+          backgroundColor: 'rgba(37, 99, 235, 0.85)',
+          borderColor: 'rgba(30, 64, 175, 1)',
+          borderWidth: 2,
+          borderRadius: 8,
+          hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+            }
+          },
+            datalabels: {
+            anchor: 'end',
+            align: 'start',
+            color: '#1e40af',
+            font: { weight: 'bold', size: 16 },
+            formatter: value => value === 0 ? '' : `$${value.toLocaleString()}`
+          },
+          title: {
+            display: false
+          }
+        },
+        layout: {
+          padding: 24
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Día de la semana', font: { size: 18, weight: 'bold' } },
+            ticks: { font: { size: 16 } }
+          },
+          y: {
+            title: { display: true, text: 'Total vendido ($)', font: { size: 18, weight: 'bold' } },
+            beginAtZero: true,
+            ticks: { font: { size: 16 } }
+          }
+        }
+      },
+      plugins: [window.ChartDataLabels]
+    });
   });
 </script>
 
-<h2 class="text-xl font-bold mb-4 text-blue-800">Ventas por día</h2>
-<div class="space-y-2">
-  {#each ventasSemana as venta}
-    <div>
-      <div class="flex justify-between text-sm mb-1">
-        <span class="font-semibold">{venta.dia}</span>
-        <span>{venta.cantidad} productos / ${venta.total.toLocaleString()}</span
-        >
-      </div>
-      <div class="bg-blue-100 rounded h-4 relative">
-        <div
-          class="bg-blue-500 h-4 rounded"
-          style="width: {Math.max(venta.cantidad * 5, 10)}px; max-width: 100%;"
-        ></div>
-      </div>
-    </div>
-  {/each}
+<h2 class="text-2xl font-bold mb-6 text-blue-800 text-center">Ventas por día</h2>
+<div class="flex justify-center">
+  <div class="w-full max-w-4xl bg-white rounded shadow p-6">
+    <canvas bind:this={canvasEl} style="height:400px; min-height:400px; max-height:500px;"></canvas>
+  </div>
 </div>
