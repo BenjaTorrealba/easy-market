@@ -14,6 +14,11 @@
   let productoEditar = null;
   let mostrarConfirmar = false;
   let productoAEliminar = null;
+  let filtro = "";
+
+    $: productosFiltrados = productos.filter(p =>
+    p.nombre.toLowerCase().includes(filtro.toLowerCase())
+  );
 
   function pedirConfirmacionEliminar(producto) {
     productoAEliminar = producto;
@@ -116,7 +121,13 @@
 
 <div class="p-8 max-w-6xl mx-auto">
   <h1 class="text-3xl font-bold mb-6 text-gray-800">Lista de Productos</h1>
-  <div class="mb-4 flex justify-end">
+  <div class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+    <input
+      type="text"
+      placeholder="Buscar producto..."
+      class="w-full md:w-1/3 px-3 py-2 border rounded-md focus:outline-none focus:ring"
+      bind:value={filtro}
+    />
     <button
       class="bg-indigo-600 hover:bg-indigo-800 text-white px-6 py-2 rounded-md text-sm transition"
       on:click={() => (mostrarModal = true)}
@@ -138,7 +149,7 @@
         </tr>
       </thead>
       <tbody class="text-gray-800 text-base">
-        {#each productos as producto}
+        {#each productosFiltrados as producto}
           <tr class="border-t border-gray-200 hover:bg-gray-50 transition">
             <td class="py-4 px-6">{producto.id}</td>
             <td class="py-4 px-6">{producto.nombre}</td>
@@ -167,6 +178,11 @@
             </td>
           </tr>
         {/each}
+        {#if productosFiltrados.length === 0}
+          <tr>
+            <td colspan="7" class="text-gray-400 text-center py-6">No hay productos.</td>
+          </tr>
+        {/if}
       </tbody>
     </table>
   </div>

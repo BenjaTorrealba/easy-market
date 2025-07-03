@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { api } from '$lib/api.js';
+  import { getRangoSemana } from '$lib/reporte.js'; // <--- Importa aquí
 
   let historialVentas = [];
   let filtroInicio = '';
@@ -12,12 +13,7 @@
   }
 
   onMount(async () => {
-    const hoy = new Date();
-    const hace7 = new Date();
-    hace7.setDate(hoy.getDate() - 6);
-    const fecha_inicio = hace7.toISOString().slice(0, 10);
-    const fecha_fin = hoy.toISOString().slice(0, 10);
-
+    const { fecha_inicio, fecha_fin } = getRangoSemana(); // <--- Usa aquí
     historialVentas = await api.getHistorialVentas(fecha_inicio, fecha_fin);
     filtroInicio = fecha_inicio;
     filtroFin = fecha_fin;

@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { api } from "$lib/api.js";
+  import { getVentasSemana } from "$lib/reporte.js"; // <-- Agrega esto
 
   $: path = $page.url.pathname;
 
@@ -17,43 +18,7 @@
   onMount(async () => {
     ventasTotales = await api.getVentasTotales();
     productosBajoStock = await api.getProductosBajoStock();
-
-    // Para productos vendidos esta semana
-    const hoy = new Date();
-    const hace7 = new Date();
-    hace7.setDate(hoy.getDate() - 6);
-    const fecha_inicio = hace7.toISOString().slice(0, 10);
-    const fecha_fin = hoy.toISOString().slice(0, 10);
-
-    const historialVentas = await api.getHistorialVentas(
-      fecha_inicio,
-      fecha_fin
-    );
-
-    const dias = [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sabado",
-    ];
-    let ventasPorDia = {};
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(hace7);
-      d.setDate(hace7.getDate() + i);
-      const key = d.toISOString().slice(0, 10);
-      ventasPorDia[key] = { dia: dias[d.getDay()], cantidad: 0, total: 0 };
-    }
-    for (const venta of historialVentas) {
-      const fecha = venta.fecha.slice(0, 10);
-      if (ventasPorDia[fecha]) {
-        ventasPorDia[fecha].cantidad += 1;
-        ventasPorDia[fecha].total += venta.total;
-      }
-    }
-    ventasSemana = Object.values(ventasPorDia);
+    ventasSemana = await getVentasSemana(); // <-- Usa la función utilitaria
   });
 </script>
 
@@ -68,8 +33,7 @@
     class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-6 shadow flex flex-col items-center"
   >
     <span class="text-5xl font-bold text-blue-700">{totalVendidos}</span>
-    <span class="text-lg text-blue-900 mt-2"
-      >Ventas realizadas esta semana</span
+    <span class="text-lg text-blue-900 mt-2">Ventas realizadas esta semana</span
     >
   </div>
   <div
@@ -100,9 +64,9 @@
   >
   <a
     class="flex-1 px-4 py-2 font-semibold border-b-2 text-center transition-colors cursor-pointer"
-    class:border-blue-600={path === "/reportes" || path.endsWith("/ventas")}
-    class:text-blue-700={path === "/reportes" || path.endsWith("/ventas")}
-    on:click={() => goto("/reportes")}>Ventas por día</a
+    class:border-blue-600={path.endsWith("/ventasDia")}
+    class:text-blue-700={path.endsWith("/ventasDia")}
+    on:click={() => goto("/reportes/ventasDia")}>Ventas por día</a
   >
   <a
     class="flex-1 px-4 py-2 font-semibold border-b-2 text-center transition-colors cursor-pointer"

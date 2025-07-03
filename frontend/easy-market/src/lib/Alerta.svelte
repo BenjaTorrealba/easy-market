@@ -1,12 +1,12 @@
 <script>
   export let mensaje = "";
-  export let tipo = "success"; 
+  export let tipo = "success";
 </script>
 
-<div class={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg
-  ${tipo === "success" ? "bg-green-100 text-green-800 border border-green-300" : ""}
-  ${tipo === "error" ? "bg-red-100 text-red-800 border border-red-300" : ""}
-  ${tipo === "info" ? "bg-blue-100 text-blue-800 border border-blue-300" : ""}
+<div class={`fixed left-1/2 top-1/3 transform -translate-x-1/2 -translate-y-1/2 z-50 px-8 py-4 rounded-xl shadow-2xl text-xl font-bold max-w-lg w-full text-center
+  ${tipo === "success" ? "bg-green-100 text-green-800 border-2 border-green-400" : ""}
+  ${tipo === "error" ? "bg-red-100 text-red-800 border-2 border-red-400" : ""}
+  ${tipo === "info" ? "bg-blue-100 text-blue-800 border-2 border-blue-400" : ""}
 `}>
   {mensaje}
 </div>

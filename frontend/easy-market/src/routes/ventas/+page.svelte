@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { api } from "$lib/api.js";
-
+  import Alerta from "$lib/Alerta.svelte";
   let productos = [];
   let filtro = "";
   let carrito = [];
@@ -17,13 +17,13 @@
   });
 
   // Productos filtrados por búsqueda
-  $: productosFiltrados = productos.filter(p =>
+  $: productosFiltrados = productos.filter((p) =>
     p.nombre.toLowerCase().includes(filtro.toLowerCase())
   );
 
   // Agregar producto al carrito
   function agregarAlCarrito(producto) {
-    const idx = carrito.findIndex(item => item.id === producto.id);
+    const idx = carrito.findIndex((item) => item.id === producto.id);
     if (idx !== -1) {
       carrito[idx].cantidad += 1;
       carrito = [...carrito];
@@ -34,11 +34,24 @@
 
   // Eliminar producto del carrito
   function eliminarDelCarrito(id) {
-    carrito = carrito.filter(item => item.id !== id);
+    carrito = carrito.filter((item) => item.id !== id);
   }
 
+  function actualizarCantidad(id, nuevaCantidad) {
+    carrito = carrito.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            cantidad: Math.max(1, Math.min(nuevaCantidad, item.stock)),
+          }
+        : item
+    );
+  }
   // Calcular total
-  $: total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+  $: total = carrito.reduce(
+    (sum, item) => sum + item.precio * item.cantidad,
+    0
+  );
 
   // Confirmar venta real
   async function confirmarVenta() {
@@ -49,11 +62,12 @@
       );
       mensaje = "¡Venta confirmada!";
       carrito = [];
-      // Recargar productos para actualizar stock
       productos = await api.getProductos();
     } catch (e) {
       mensaje = "Error al realizar la venta";
     }
+    // Oculta el mensaje después de 2 segundos
+    setTimeout(() => (mensaje = ""), 2000);
   }
 </script>
 
@@ -61,20 +75,34 @@
   <h1 class="text-2xl font-bold mb-4">Realizar Venta</h1>
 
   <div class="mb-6">
-    <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md shadow-sm">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h2M3 17h2M7 3v2m10-2v2m4 4h2m-2 10h2M7 21v-2m10 2v-2M12 8v4l3 3" />
+    <div
+      class="flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md shadow-sm"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M3 7h2M3 17h2M7 3v2m10-2v2m4 4h2m-2 10h2M7 21v-2m10 2v-2M12 8v4l3 3"
+        />
       </svg>
-      <span><strong>Escanee el producto</strong> para que se agregue al carrito</span>
+      <span
+        ><strong>Escanee el producto</strong> para que se agregue al carrito</span
+      >
     </div>
   </div>
 
   {#if mensaje}
-    <div class="mb-4 text-center text-green-700 font-semibold">{mensaje}</div>
-  {/if}
+  <Alerta mensaje={mensaje} tipo="success" />
+{/if}
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- 🛍️ Columna de productos -->
     <div class="bg-white shadow-md rounded-xl p-4">
       <h2 class="text-xl font-semibold mb-3">Productos</h2>
       <input
@@ -86,10 +114,14 @@
 
       <div class="space-y-2">
         {#each productosFiltrados as producto}
-          <div class="flex items-center justify-between border rounded-md px-3 py-2">
+          <div
+            class="flex items-center justify-between border rounded-md px-3 py-2"
+          >
             <div>
               <p class="font-medium">{producto.nombre}</p>
-              <p class="text-sm text-gray-500">${producto.precio.toLocaleString()}</p>
+              <p class="text-sm text-gray-500">
+                Precio: ${producto.precio.toLocaleString()} | Stock: {producto.stock}
+              </p>
             </div>
             <button
               class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
@@ -105,17 +137,31 @@
       </div>
     </div>
 
-    <!-- 🧺 Columna del carrito -->
     <div class="bg-white shadow-md rounded-xl p-4">
       <h2 class="text-xl font-semibold mb-3">Carrito</h2>
 
       <div class="space-y-2">
         {#each carrito as item}
-          <div class="flex items-center justify-between border px-3 py-2 rounded-md">
+          <div
+            class="flex items-center justify-between border px-3 py-2 rounded-md"
+          >
             <div>
-              <p class="font-medium">{item.nombre} x{item.cantidad}</p>
+              <p class="font-medium">
+                {item.nombre}
+                <input
+                  type="number"
+                  min="1"
+                  max={item.stock}
+                  class="w-16 ml-2 border rounded px-1 py-0.5 text-center"
+                  bind:value={item.cantidad}
+                  on:input={(e) => actualizarCantidad(item.id, +e.target.value)}
+                />
+                <span class="text-xs text-gray-400 ml-1"
+                  >/ {item.stock} disp.</span
+                >
+              </p>
               <p class="text-sm text-gray-500">
-                Subtotal: ${ (item.precio * item.cantidad).toLocaleString() }
+                Subtotal: ${(item.precio * item.cantidad).toLocaleString()}
               </p>
             </div>
             <button
@@ -130,7 +176,6 @@
           <p class="text-gray-400 text-sm">El carrito está vacío.</p>
         {/if}
 
-        <!-- Total y botón de venta -->
         <div class="mt-4 border-t pt-4">
           <p class="text-lg font-semibold">Total: ${total.toLocaleString()}</p>
           <button

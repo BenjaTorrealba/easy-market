@@ -36,8 +36,7 @@ export function iniciarScanner(onDetected) {
         if (onDetected) {
             onDetected(result.codeResult.code);
         }
-        // Si quieres detener el escaneo después de detectar uno, descomenta la siguiente línea:
-        // Quagga.stop();
+        Quagga.stop();
     });
 }
 
