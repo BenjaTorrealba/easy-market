@@ -21,7 +21,9 @@ func setupRoutes() {
 	http.HandleFunc("/api/productos/bajo-stock", corsMiddleware(getProductosBajoStock))
 	http.HandleFunc("/api/pedidos", corsMiddleware(pedidosHandler))
 	http.HandleFunc("/api/pedidos/estado", corsMiddleware(updateEstadoPedido))
-
+    http.HandleFunc("/api/reportes/ventas-totales", corsMiddleware(handlers.GetVentasTotales))
+    http.HandleFunc("/api/reportes/ganancia-neta", corsMiddleware(handlers.GetGananciaNeta))
+    http.HandleFunc("/api/reportes/historial-ventas", corsMiddleware(handlers.GetHistorialVentas))
 }
 
 func categoriasHandler(w http.ResponseWriter, r *http.Request) {
@@ -96,6 +98,8 @@ func pedidosHandler(w http.ResponseWriter, r *http.Request) {
         handlers.GetPedidos(w, r)
     case "POST":
         handlers.CreatePedido(w, r)
+    case "DELETE":
+        handlers.DeletePedido(w, r)
     default:
         http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
     }

@@ -5,9 +5,7 @@ import (
     "net/http"
     "backend/db"
     "backend/models"
-    "strconv"
-    "log"
-    "strings"
+
 )
 
 func GetPedidos(w http.ResponseWriter, r *http.Request) {
@@ -137,62 +135,18 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(p)
 }
 
-func UpdateEstadoPedido(w http.ResponseWriter, r *http.Request) {
-    if r.Method != "PUT" {
-        http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
-        return
-    }
-    
+func DeletePedido(w http.ResponseWriter, r *http.Request) {
     idStr := r.URL.Query().Get("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        http.Error(w, "ID inválido", http.StatusBadRequest)
+    if idStr == "" {
+        http.Error(w, "ID no proporcionado", http.StatusBadRequest)
         return
     }
-    
-    var req struct {
-        Estado string `json:"estado"`
-    }
-    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
-    log.Println("Estado recibido:", req.Estado)
 
-    // Si el estado es "Entregado", sumar cantidades al stock
-    if strings.TrimSpace(strings.ToLower(req.Estado)) == "entregado" {
-    rows, err := db.Conn.Query(`
-        SELECT ProductoID, Cantidad
-        FROM PedidoProducto
-        WHERE PedidoID = ?`, id)
+    _, err := db.Conn.Exec("DELETE FROM Pedido WHERE ID = ?", idStr)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    defer rows.Close()
-    for rows.Next() {
-        var productoID, cantidad int
-        if err := rows.Scan(&productoID, &cantidad); err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-        _, err = db.Conn.Exec(`
-            UPDATE Producto
-            SET Stock = Stock + ?
-            WHERE ID = ?`, cantidad, productoID)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-    }
-}
-    
-    _, err = db.Conn.Exec("UPDATE Pedido SET Estado = ? WHERE ID = ?", req.Estado, id)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(map[string]string{"message": "Estado actualizado"})
+
+    w.WriteHeader(http.StatusNoContent)
 }

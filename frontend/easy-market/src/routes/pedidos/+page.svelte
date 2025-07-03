@@ -7,17 +7,24 @@
   let productosBajoStock = [];
 
   let pedidos = [];
+  let pedidosConfirmados = [];
 
   let mostrarAlerta = false;
   let mensajeAlerta = "";
-  let mostrarModal = false; // 
+  let mostrarModal = false;
+
   onMount(async () => {
     try {
       productosBajoStock = await api.getProductosBajoStock();
-      pedidos = await api.getPedidos();      
+      const todosLosPedidos = await api.getPedidos();
+      pedidos = todosLosPedidos.filter(p => p.estado !== "Entregado");
+      pedidosConfirmados = todosLosPedidos.filter(p => p.estado === "Entregado");
+      console.log("Pedidos confirmados:", pedidosConfirmados);
+      console.log("Pedidos pendientes:", pedidos);
     } catch (e) {
       productosBajoStock = [];
       pedidos = [];
+      pedidosConfirmados = [];
     }
   });
 
@@ -136,11 +143,69 @@ async function actualizarStock(PedidoID) {
             <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Productos</th>
             <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Fecha estimada</th>
             <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Estado</th>
-            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold"></th>
+            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Accion</th>
           </tr>
         </thead>
         <tbody>
           {#each pedidos as pedido}
+            <tr class="hover:bg-blue-100/40 transition">
+              <td class="border-t px-6 py-3">{pedido.fecha}</td>
+              <td class="border-t px-6 py-3">{pedido.distribuidor}</td>
+              <td class="border-t px-6 py-3">
+                {#if Array.isArray(pedido.productos) && pedido.productos.length > 0}
+                  {pedido.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(", ")}
+                {:else}
+                  <span class="text-gray-400">Sin productos</span>
+              {/if}
+              </td>
+              <td class="border-t px-6 py-3">{pedido.fechaEstimada}</td>
+              <td class="border-t px-6 py-3">
+                {#if pedido.estado === "Entregado"}
+                  <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">Entregado</span>
+                {:else}
+                  <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">Pendiente</span>
+                {/if}
+              </td>
+              <td class="border-t px-6 py-3">
+                {#if pedido.estado === "Pendiente"}
+                  <button
+                      class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                      on:click={() => actualizarStock(pedido.id)}>
+                      Confirmar entrega
+                  </button>
+                {/if}
+              </td>
+            </tr>
+          {/each}
+          {#if pedidos.length === 0}
+            <tr>
+              <td colspan="6" class="text-gray-400 px-6 py-3">No hay pedidos registrados.</td>
+            </tr>
+          {/if}
+        </tbody>
+      </table>
+    </div>
+  </div>
+    <!-- Pedidos confirmados (tabla) -->
+  <div>
+    <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2 mb-4">
+      <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v4a1 1 0 001 1h3m10-5h3a1 1 0 011 1v4a1 1 0 01-1 1h-3m-10 4h10m-10 4h10" /></svg>
+      Pedidos Confirmados
+    </h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full rounded-lg shadow border border-blue-200 bg-white">
+        <thead>
+          <tr>
+            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Fecha pedido</th>
+            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Distribuidor</th>
+            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Productos</th>
+            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Fecha estimada</th>
+            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Estado</th>
+            <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each pedidosConfirmados as pedido}
             <tr class="hover:bg-blue-100/40 transition">
               <td class="border-t px-6 py-3">{pedido.fecha}</td>
               <td class="border-t px-6 py-3">{pedido.distribuidor}</td>

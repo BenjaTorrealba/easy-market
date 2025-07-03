@@ -1,5 +1,7 @@
 <script>
   import AgregarProducto from "$lib/AgregarProducto.svelte";
+  import EditarProducto from "$lib/EditarProducto.svelte";
+  import Confirmar from "$lib/Confirmar.svelte";
   import Alerta from "$lib/Alerta.svelte";
   import { api } from "$lib/api.js";
   import { onMount } from "svelte";
@@ -9,7 +11,25 @@
   let mostrarModal = false;
   let mostrarAlerta = false;
   let mensajeAlerta = "";
+  let productoEditar = null;
+  let mostrarConfirmar = false;
+  let productoAEliminar = null;
 
+  function pedirConfirmacionEliminar(producto) {
+    productoAEliminar = producto;
+    mostrarConfirmar = true;
+  }
+
+  async function confirmarEliminar() {
+    await eliminarProducto(productoAEliminar);
+    mostrarConfirmar = false;
+    productoAEliminar = null;
+  }
+
+  function cancelarEliminar() {
+    mostrarConfirmar = false;
+    productoAEliminar = null;
+  }
   onMount(async () => {
     categorias = await api.getCategorias();
     productos = await api.getProductos();
@@ -28,39 +48,51 @@
       setTimeout(() => (mostrarAlerta = false), 2000);
     }
   }
-
-  // Editar precio
-  async function editarPrecio(producto) {
-    const nuevoPrecio = prompt("Nuevo precio:", producto.precio);
-    if (nuevoPrecio && !isNaN(nuevoPrecio)) {
-      const actualizado = { ...producto, precio: Number(nuevoPrecio) };
-      await api.updateProducto(producto.id, actualizado);
-      productos = productos.map(p => p.id === producto.id ? actualizado : p);
-    }
-  }
-
-  // Editar stock
-  async function editarStock(producto) {
-    const nuevoStock = prompt("Nuevo stock:", producto.stock);
-    if (nuevoStock && !isNaN(nuevoStock)) {
-      const actualizado = { ...producto, stock: Number(nuevoStock) };
-      await api.updateProducto(producto.id, actualizado);
-      productos = productos.map(p => p.id === producto.id ? actualizado : p);
-    }
-  }
-
-  // Marcar poco stock
-  function marcarPocoStock(producto) {
-    mensajeAlerta = `¡Quedan pocos de "${producto.nombre}"!`;
+  
+  async function guardarEdicionProducto(actualizado) {
+    await api.updateProducto(actualizado.id, actualizado);
+    productos = productos.map(p => p.id === actualizado.id ? actualizado : p);
+    mensajeAlerta = "¡Producto actualizado!";
     mostrarAlerta = true;
     setTimeout(() => (mostrarAlerta = false), 2000);
   }
+  function abrirEditarProducto(producto) {
+    productoEditar = producto;
+  }
 
-function obtenerNombreCategoria(id) {
-  const cat = categorias.find(c => c.id === id);
-  return cat ? cat.nombre : "-";
-}
+
+
+  async function eliminarProducto(producto) {
+      try {
+        await api.request(`/productos?id=${producto.id}`, { method: "DELETE" });
+        productos = productos.filter(p => p.id !== producto.id);
+        mensajeAlerta = "Producto eliminado";
+        mostrarAlerta = true;
+        setTimeout(() => (mostrarAlerta = false), 2000);
+      } catch (e) {
+        mensajeAlerta = "Error al eliminar producto";
+        mostrarAlerta = true;
+        setTimeout(() => (mostrarAlerta = false), 2000);
+      }
+    
+  }
+
+
+
+  function obtenerNombreCategoria(id) {
+    const cat = categorias.find(c => c.id === id);
+    return cat ? cat.nombre : "-";
+  }
 </script>
+
+{#if mostrarConfirmar}
+  <Confirmar
+    mensaje={`¿Seguro que deseas eliminar "${productoAEliminar?.nombre}"?`}
+    onConfirm={confirmarEliminar}
+    onCancel={cancelarEliminar}
+  />
+{/if}
+
 
 {#if mostrarAlerta}
   <Alerta mensaje={mensajeAlerta} tipo="success" />
@@ -70,6 +102,15 @@ function obtenerNombreCategoria(id) {
   <AgregarProducto
     onAgregar={agregarProducto}
     onClose={() => (mostrarModal = false)}
+  />
+{/if}
+
+{#if productoEditar}
+  <EditarProducto
+    producto={productoEditar}
+    {categorias}
+    onGuardar={guardarEdicionProducto}
+    onClose={() => (productoEditar = null)}
   />
 {/if}
 
@@ -96,44 +137,37 @@ function obtenerNombreCategoria(id) {
           <th class="py-4 px-6 text-left">Acciones</th>
         </tr>
       </thead>
-<tbody class="text-gray-800 text-base">
-  {#each productos as producto}
-    <tr class="border-t border-gray-200 hover:bg-gray-50 transition">
-      <td class="py-4 px-6">{producto.id}</td>
-      <td class="py-4 px-6">{producto.nombre}</td>
-      <td class="py-4 px-6">{obtenerNombreCategoria(producto.categoria_id)}</td>
-      <td class="py-4 px-6">${producto.precio.toLocaleString()}</td>
-      <td class="py-4 px-6">{producto.stock}</td>
-      <td class="py-4 px-6">{producto.codigo_barras}</td>
-      <td class="py-4 px-6 flex gap-2 items-center">
-  <button
-    class="flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded transition"
-    title="Editar precio"
-    on:click={() => editarPrecio(producto)}
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6a2 2 0 002-2v-6a2 2 0 00-2-2h-6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>
-    Precio
-  </button>
-  <button
-    class="flex items-center gap-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-3 py-1 rounded transition"
-    title="Editar stock"
-    on:click={() => editarStock(producto)}
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-    Stock
-  </button>
-  <button
-    class="flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition"
-    title="Marcar poco stock"
-    on:click={() => marcarPocoStock(producto)}
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-    ¡Poco!
-  </button>
-</td>
-    </tr>
-  {/each}
-</tbody>
+      <tbody class="text-gray-800 text-base">
+        {#each productos as producto}
+          <tr class="border-t border-gray-200 hover:bg-gray-50 transition">
+            <td class="py-4 px-6">{producto.id}</td>
+            <td class="py-4 px-6">{producto.nombre}</td>
+            <td class="py-4 px-6">{obtenerNombreCategoria(producto.categoria_id)}</td>
+            <td class="py-4 px-6">${producto.precio.toLocaleString()}</td>
+            <td class="py-4 px-6">{producto.stock}</td>
+            <td class="py-4 px-6">{producto.codigo_barras}</td>
+            <td class="py-4 px-6 flex gap-2 items-center">
+              <button
+                class="flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded transition"
+                title="Editar producto"
+                on:click={() => abrirEditarProducto(producto)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6a2 2 0 002-2v-6a2 2 0 00-2-2h-6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>
+                Editar
+              </button>
+              <button
+                class="flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition"
+                title="Eliminar producto"
+                on:click={() => pedirConfirmacionEliminar(producto)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                Eliminar
+              </button>
+
+            </td>
+          </tr>
+        {/each}
+      </tbody>
     </table>
   </div>
 </div>

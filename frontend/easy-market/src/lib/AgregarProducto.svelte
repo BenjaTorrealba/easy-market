@@ -18,7 +18,7 @@
   });
 
   function agregar() {
-    if (!nombre || !precio || !stock || !codigoBarras || !categoriaID) return;
+    if (!nombre || !precio || !stock || !categoriaID) return;
     onAgregar({
       nombre,
       precio: Number(precio),
