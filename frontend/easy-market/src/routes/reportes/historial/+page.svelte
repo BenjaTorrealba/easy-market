@@ -1,19 +1,29 @@
 <script>
   import { onMount } from 'svelte';
   import { api } from '$lib/api.js';
-  import { getRangoSemana } from '$lib/reporte.js'; // <--- Importa aquí
+  import { getRangoSemana } from '$lib/reporte.js';
 
   let historialVentas = [];
   let filtroInicio = '';
   let filtroFin = '';
   let historialFiltrado = [];
 
+  function formatearFechaHora(fechaIso) {
+    const fecha = new Date(fechaIso);
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const anio = fecha.getFullYear();
+    const hora = String(fecha.getHours()).padStart(2, '0');
+    const min = String(fecha.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${anio} ${hora}:${min}`;
+  }
+
   async function filtrarHistorial() {
     historialFiltrado = await api.getHistorialVentas(filtroInicio, filtroFin);
   }
 
   onMount(async () => {
-    const { fecha_inicio, fecha_fin } = getRangoSemana(); // <--- Usa aquí
+    const { fecha_inicio, fecha_fin } = getRangoSemana();
     historialVentas = await api.getHistorialVentas(fecha_inicio, fecha_fin);
     filtroInicio = fecha_inicio;
     filtroFin = fecha_fin;
@@ -48,7 +58,7 @@
       {#each historialFiltrado as venta}
         <tr class="hover:bg-blue-100/40 transition">
           <td class="border-t px-6 py-3">{venta.id}</td>
-          <td class="border-t px-6 py-3">{venta.fecha.slice(0, 16).replace('T', ' ')}</td>
+          <td class="border-t px-6 py-3">{formatearFechaHora(venta.fecha)}</td>
           <td class="border-t px-6 py-3">${venta.total.toLocaleString()}</td>
         </tr>
       {/each}

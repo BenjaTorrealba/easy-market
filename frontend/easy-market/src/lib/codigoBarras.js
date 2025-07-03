@@ -1,28 +1,34 @@
 import Quagga from 'quagga';
 
+let detectedCallback = null;
+let quaggaIniciado = false; // <--- NUEVO
 export function iniciarScanner(onDetected) {
+    // Elimina el listener anterior si existe
+    if (detectedCallback) {
+        Quagga.offDetected(detectedCallback);
+    }
+
+    detectedCallback = result => {
+        if (onDetected) {
+            onDetected(result.codeResult.code);
+        }
+        Quagga.stop();
+        Quagga.offDetected(detectedCallback); // Limpia el listener después de usarlo
+        detectedCallback = null;
+    };
+
     Quagga.init({
         inputStream: {
             type: "LiveStream",
-            target: document.querySelector('#scanner-container'), // Asegúrate de tener este div en tu HTML
+            target: document.querySelector('#scanner-container'),
             constraints: {
-                facingMode: "environment" // Usa la cámara trasera si está disponible
+                facingMode: "environment"
             }
         },
         decoder: {
             readers: [
                 "ean_reader",
-                "ean_8_reader",
-                "code_128_reader",
-                "code_39_reader",
-                "code_39_vin_reader",
-                "upc_reader",
-                "upc_e_reader",
-                "codabar_reader",
-                "i2of5_reader",
-                "2of5_reader",
-                "code_93_reader"
-            ] // Puedes agregar más tipos si lo necesitas
+            ] 
         }
     }, function(err) {
         if (err) {
@@ -30,16 +36,19 @@ export function iniciarScanner(onDetected) {
             return;
         }
         Quagga.start();
-    });
-
-    Quagga.onDetected(result => {
-        if (onDetected) {
-            onDetected(result.codeResult.code);
-        }
-        Quagga.stop();
+        quaggaIniciado = true; // <--- SOLO si inicia bien
+        Quagga.onDetected(detectedCallback);
     });
 }
 
+
 export function detenerScanner() {
-    Quagga.stop();
+    if (quaggaIniciado) { // <--- SOLO si está iniciado
+        Quagga.stop();
+        quaggaIniciado = false;
+    }
+    if (detectedCallback) {
+        Quagga.offDetected(detectedCallback);
+        detectedCallback = null;
+    }
 }

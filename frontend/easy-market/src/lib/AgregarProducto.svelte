@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy, tick } from "svelte";
   import { api } from "$lib/api.js";
   import { iniciarScanner, detenerScanner } from "$lib/codigoBarras.js";
   export let onAgregar;
@@ -11,8 +11,8 @@
   let codigoBarras = "";
   let categoriaID = "";
   let categorias = [];
+  let mostrarScanner = false;
 
-  // Nueva función para limpiar todos los campos
   function limpiarCampos() {
     nombre = "";
     precio = "";
@@ -21,9 +21,9 @@
     categoriaID = categorias.length > 0 ? categorias[0].id : "";
   }
 
-  // Nueva función para cerrar y limpiar
   function closeAndReset() {
     detenerScanner();
+    mostrarScanner = false;
     limpiarCampos();
     onClose();
   }
@@ -31,27 +31,16 @@
   onMount(async () => {
     categorias = await api.getCategorias();
     limpiarCampos();
-
-    // Inicia el escáner SOLO después de que el div esté en el DOM
-    iniciarScanner((codigo) => {
-      codigoBarras = codigo;
-      detenerScanner();
-    });
   });
 
   onDestroy(() => {
     detenerScanner();
+    mostrarScanner = false;
     limpiarCampos();
   });
 
   function agregar() {
-    console.log("Intentando agregar producto...");
-    console.log({ nombre, precio, stock, categoriaID, codigoBarras });
-
-    if (!nombre || !precio || !stock || !categoriaID) {
-      console.log("Faltan campos obligatorios");
-      return;
-    }
+    if (!nombre || !precio || !stock || !categoriaID) return;
     const producto = {
       nombre,
       precio: Number(precio),
@@ -59,29 +48,29 @@
       codigo_barras: codigoBarras,
       categoria_id: Number(categoriaID),
     };
-    console.log("Producto a agregar:", producto);
-
     onAgregar(producto);
     detenerScanner();
+    mostrarScanner = false;
     limpiarCampos();
     onClose();
   }
-  function volverAEscanear() {
-    codigoBarras = "";
-    detenerScanner();
+
+  async function iniciarEscaner() {
+    mostrarScanner = true;
+    await tick(); // Espera a que el DOM actualice y el div esté presente
     iniciarScanner((codigo) => {
       codigoBarras = codigo;
       detenerScanner();
+      mostrarScanner = false;
     });
+  }
+
+  function detenerEscaner() {
+    detenerScanner();
+    mostrarScanner = false;
   }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
   class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center min-h-screen"
   on:click={closeAndReset}
@@ -130,15 +119,27 @@
         placeholder="Código de barras"
         bind:value={codigoBarras}
       />
-      <button
-        type="button"
-        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded mb-2 w-full"
-        on:click={volverAEscanear}
-      >
-        Volver a escanear código de barras
-      </button>
-      <!-- Contenedor para el escáner -->
-      <div id="scanner-container"></div>
+      <div class="flex gap-2 mb-2">
+        <button
+          type="button"
+          class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
+          on:click={iniciarEscaner}
+          disabled={mostrarScanner}
+        >
+          Iniciar escáner
+        </button>
+        <button
+          type="button"
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded w-full"
+          on:click={detenerEscaner}
+          disabled={!mostrarScanner}
+        >
+          Detener escáner
+        </button>
+      </div>
+      {#if mostrarScanner}
+        <div id="scanner-container" class="scanner-video"></div>
+      {/if}
       <button
         class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded shadow font-semibold transition w-full"
         on:click={agregar}
@@ -150,23 +151,25 @@
 </div>
 
 <style>
-  #scanner-container {
+  .scanner-video {
     position: relative;
     width: 100%;
     max-width: 320px;
-    height: 160px;
+    height: 200px;
     margin: 0 auto 1rem auto;
-    display: block;
     border-radius: 8px;
     overflow: hidden;
+    background: #000;
   }
   #scanner-container video,
   #scanner-container canvas {
-    position: static !important;
-    pointer-events: none !important;
+    position: absolute !important;
+    top: 0; left: 0;
     width: 100% !important;
     height: 100% !important;
+    object-fit: cover !important;
     z-index: 1 !important;
     display: block;
+    background: #000;
   }
 </style>

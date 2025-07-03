@@ -2,18 +2,18 @@
   import { onMount } from 'svelte';
   import Chart from 'chart.js/auto';
   import ChartDataLabels from 'chartjs-plugin-datalabels';
-  import { getVentasSemana } from '$lib/reporte.js'; // <--- Usa tu función
-
-  window.ChartDataLabels = ChartDataLabels;
+  import { getVentasSemana } from '$lib/reporte.js';
 
   let ventasSemana = [];
   let chart;
   let canvasEl;
 
   onMount(async () => {
-    ventasSemana = await getVentasSemana(); // <--- Solo esto
+    ventasSemana = await getVentasSemana();
 
-    // Dibuja el gráfico
+    // Solo existe window en el cliente
+    window.ChartDataLabels = ChartDataLabels;
+
     if (chart) chart.destroy();
     chart = new Chart(canvasEl, {
       type: 'bar',
@@ -29,7 +29,6 @@
           hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
         }]
       },
-      // ...resto igual...
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -66,14 +65,10 @@
           }
         }
       },
-      plugins: [window.ChartDataLabels]
+      plugins: [ChartDataLabels]
     });
   });
 </script>
-
-<h2 class="text-2xl font-bold mb-6 text-blue-800 text-center">Ventas por día</h2>
-<div class="flex justify-center">
-  <div class="w-full max-w-4xl bg-white rounded shadow p-6">
-    <canvas bind:this={canvasEl} style="height:400px; min-height:400px; max-height:500px;"></canvas>
-  </div>
+<div class="relative" style="height: 400px;">
+  <canvas bind:this={canvasEl}></canvas>
 </div>

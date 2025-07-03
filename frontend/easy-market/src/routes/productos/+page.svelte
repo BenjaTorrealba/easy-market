@@ -36,6 +36,7 @@
     productoAEliminar = null;
   }
   onMount(async () => {
+    const Quagga = (await import('quagga')).default;
     categorias = await api.getCategorias();
     productos = await api.getProductos();
   });
