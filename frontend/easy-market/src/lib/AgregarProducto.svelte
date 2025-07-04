@@ -57,7 +57,7 @@
 
   async function iniciarEscaner() {
     mostrarScanner = true;
-    await tick(); // Espera a que el DOM actualice y el div esté presente
+    await tick();
     iniciarScanner((codigo) => {
       codigoBarras = codigo;
       detenerScanner();
@@ -83,9 +83,7 @@
       class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
       on:click={closeAndReset}>&times;</button
     >
-    <h2 class="text-xl font-bold text-gray-700 mb-4">
-      Agregar nuevo producto
-    </h2>
+    <h2 class="text-xl font-bold text-gray-700 mb-4">Agregar nuevo producto</h2>
     <div class="space-y-4">
       <input
         class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
@@ -164,7 +162,8 @@
   #scanner-container video,
   #scanner-container canvas {
     position: absolute !important;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;

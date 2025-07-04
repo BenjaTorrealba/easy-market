@@ -18,7 +18,15 @@ class ApiClient {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      if (response.status === 204) {
+        return null;
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return await response.json();
+      }
+      return null;
     } catch (error) {
       console.error("API Error:", error);
       throw error;
@@ -54,7 +62,6 @@ class ApiClient {
   async deletePedido(id) {
     return this.request(`/pedidos?id=${id}`, {
       method: "DELETE",
-      
     });
   }
   async getProductos() {
@@ -98,6 +105,13 @@ class ApiClient {
   }
   async getProductosMasVendidos() {
     return this.request("/reportes/productos-mas-vendidos");
+  }
+
+  async login(nombreUsuario, password) {
+    return this.request("/login", {
+      method: "POST",
+      body: JSON.stringify({ nombreUsuario, password }),
+    });
   }
 }
 

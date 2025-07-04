@@ -7,15 +7,22 @@
   export let categorias = [];
 
   let productosDisponibles = [];
+  let productosFiltrados = [];
   let distribuidor = "";
   let fechaEstimada = "";
   let seleccionados = [];
   let fechaPedido = new Date().toISOString().slice(0, 10);
+  let filtro = "";
 
   // Cargar productos al montar el componente
   onMount(async () => {
     productosDisponibles = await api.getProductos();
+    productosFiltrados = productosDisponibles;
   });
+
+  $: productosFiltrados = productosDisponibles.filter((p) =>
+    p.nombre.toLowerCase().includes(filtro.toLowerCase())
+  );
 
   function agregarProducto(producto) {
     if (!seleccionados.find((p) => p.id === producto.id)) {
@@ -31,7 +38,7 @@
     seleccionados = seleccionados.map((p) =>
       p.id === producto.id
         ? { ...p, cantidad: Math.max(1, Number(cantidad) || 1) }
-        : p,
+        : p
     );
   }
 
@@ -40,13 +47,12 @@
     return cat ? cat.nombre : id;
   }
 
-    function agregar() {
+  function agregar() {
     if (!distribuidor || seleccionados.length === 0 || !fechaEstimada) return;
 
-    // Transformar productos al formato correcto
-    const productosParaEnvio = seleccionados.map(p => ({
+    const productosParaEnvio = seleccionados.map((p) => ({
       producto_id: p.id,
-      cantidad: p.cantidad
+      cantidad: p.cantidad,
     }));
 
     onAgregar({
@@ -54,7 +60,7 @@
       fecha: fechaPedido,
       fechaEstimada,
       estado: "Pendiente",
-      productos: productosParaEnvio
+      productos: productosParaEnvio,
     });
 
     distribuidor = "";
@@ -79,23 +85,34 @@
   ></button>
   <div
     class="bg-white rounded-lg shadow-xl p-8 w-full max-w-3xl relative flex flex-col gap-6"
-    style="z-index:52;">
+    style="z-index:52;"
+  >
     <button
       <button
       class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
       on:click={onClose}
-      aria-label="Cerrar modal">&times;</button>
+      aria-label="Cerrar modal">&times;</button
+    >
     <h2 class="text-3xl font-bold text-gray-700 mb-2">Agregar nuevo pedido</h2>
     <div class="flex gap-6">
-      <!-- Lista de productos disponibles -->
       <div class="w-1/2 border border-gray-400 rounded p-4 bg-white">
         <h3 class="font-semibold mb-2 text-gray-800">Productos disponibles</h3>
+        <input
+          type="text"
+          placeholder="Buscar producto..."
+          class="w-full mb-3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-200"
+          bind:value={filtro}
+        />
         <ul class="space-y-2 max-h-64 overflow-y-auto">
-          {#each productosDisponibles as producto (producto.id)}
+          {#each productosFiltrados as producto (producto.id)}
             {#if !seleccionados.find((p) => p.id === producto.id)}
-              <li class="flex justify-between items-center border-b border-gray-100 pb-1">
+              <li
+                class="flex justify-between items-center border-b border-gray-100 pb-1"
+              >
                 <div>
-                  <div class="font-semibold text-gray-800">{producto.nombre}</div>
+                  <div class="font-semibold text-gray-800">
+                    {producto.nombre}
+                  </div>
                   <div class="text-s text-gray-400">
                     Precio: ${producto.precio?.toLocaleString() ?? "-"}
                     | Stock: {producto.stock ?? "-"}
@@ -103,20 +120,27 @@
                 </div>
                 <button
                   class="bg-green-300 hover:bg-green-500 text-gray-700 px-2 py-1 rounded text-xs transition"
-                  on:click={() => agregarProducto(producto)}>
+                  on:click={() => agregarProducto(producto)}
+                >
                   Agregar
                 </button>
               </li>
             {/if}
           {/each}
+          {#if productosFiltrados.filter((p) => !seleccionados.find((s) => s.id === p.id)).length === 0}
+            <li class="text-gray-400 text-sm text-center py-2">
+              No hay productos para mostrar.
+            </li>
+          {/if}
         </ul>
       </div>
-      <!-- Lista de productos seleccionados -->
       <div class="w-1/2 border border-gray-400 rounded p-4 bg-white">
         <h3 class="font-semibold mb-2 text-gray-800">Productos a pedir</h3>
         <ul class="space-y-2 max-h-64 overflow-y-auto">
           {#each seleccionados as producto (producto.id)}
-            <li class="flex justify-between items-center border-b border-gray-100 pb-1">
+            <li
+              class="flex justify-between items-center border-b border-gray-100 pb-1"
+            >
               <div>
                 <div class="font-semibold text-gray-800">{producto.nombre}</div>
                 <div class="text-xs text-gray-400">
@@ -146,7 +170,6 @@
         </ul>
       </div>
     </div>
-    <!-- Campos de distribuidor y fechas -->
     <div class="flex flex-col gap-3 mt-4">
       <input
         class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
@@ -155,7 +178,8 @@
       />
       <div class="flex gap-4">
         <div class="flex-1">
-          <label class="block text-sm text-gray-700 mb-1">Fecha de pedido</label>
+          <label class="block text-sm text-gray-700 mb-1">Fecha de pedido</label
+          >
           <input
             type="date"
             class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
@@ -165,7 +189,8 @@
         </div>
         <div class="flex-1">
           <label class="block text-sm text-gray-700 mb-1"
-            >Fecha estimada de llegada</label>
+            >Fecha estimada de llegada</label
+          >
           <input
             type="date"
             class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
@@ -175,7 +200,8 @@
       </div>
       <button
         class="bg-green-300 hover:bg-green-500 text-gray-700 px-6 py-2 rounded shadow font-semibold transition w-full mt-2"
-        on:click={agregar}>Agregar pedido</button>
+        on:click={agregar}>Agregar pedido</button
+      >
     </div>
   </div>
 </div>

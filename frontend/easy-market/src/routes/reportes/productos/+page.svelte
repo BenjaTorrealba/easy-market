@@ -1,6 +1,6 @@
 <script>
-  import { onMount } from 'svelte';
-  import { api } from '$lib/api.js';
+  import { onMount } from "svelte";
+  import { api } from "$lib/api.js";
 
   let productosMasVendidos = [];
 
@@ -14,13 +14,21 @@
   <table class="min-w-full rounded-lg shadow border border-green-200 bg-white">
     <thead>
       <tr>
-        <th class="px-6 py-3 text-left bg-green-100 text-green-700 font-semibold">Producto</th>
-        <th class="px-6 py-3 text-left bg-green-100 text-green-700 font-semibold">Cantidad vendida</th>
+        <th
+          class="px-6 py-3 text-left bg-green-100 text-green-700 font-semibold"
+          >Producto</th
+        >
+        <th
+          class="px-6 py-3 text-left bg-green-100 text-green-700 font-semibold"
+          >Cantidad vendida</th
+        >
       </tr>
     </thead>
     <tbody>
-      {#each productosMasVendidos as producto}
-        <tr class="hover:bg-green-100/40 transition">
+      {#each productosMasVendidos as producto, i}
+        <tr
+          class={`border-t transition ${i % 2 === 0 ? "bg-white" : "bg-gray-100"} hover:bg-green-100/40`}
+        >
           <td class="border-t px-6 py-3 font-semibold">{producto.nombre}</td>
           <td class="border-t px-6 py-3">{producto.cantidad}</td>
         </tr>

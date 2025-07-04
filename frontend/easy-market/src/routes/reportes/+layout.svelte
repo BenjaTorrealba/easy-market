@@ -3,9 +3,17 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { api } from "$lib/api.js";
-  import { getVentasSemana } from "$lib/reporte.js"; // <-- Agrega esto
+  import { getVentasSemana } from "$lib/reporte.js";
 
   $: path = $page.url.pathname;
+
+  // Redirección si no es admin
+  onMount(() => {
+    const rol = localStorage.getItem("rol");
+    if (rol !== "admin") {
+      goto("/");
+    }
+  });
 
   // Métricas principales
   let ventasTotales = { dia: 0, semana: 0, mes: 0 };
@@ -34,7 +42,8 @@
     class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-6 shadow flex flex-col items-center"
   >
     <span class="text-5xl font-bold text-blue-700">{totalVendidos}</span>
-    <span class="text-lg text-blue-900 mt-2">Ventas realizadas esta semana</span>
+    <span class="text-lg text-blue-900 mt-2">Ventas realizadas esta semana</span
+    >
   </div>
   <div
     class="bg-green-50 border-l-4 border-green-400 rounded-lg p-6 shadow flex flex-col items-center"
@@ -58,20 +67,20 @@
 <div class="mb-6 flex w-full gap-2 border-b">
   <a
     class="flex-1 px-4 py-2 font-semibold border-b-2 text-center transition-colors cursor-pointer"
-    class:border-blue-600={path.endsWith("/productos")}
-    class:text-blue-700={path.endsWith("/productos")}
+    class:border-green-600={path.endsWith("/productos")}
+    class:text-green-700={path.endsWith("/productos")}
     on:click={() => goto("/reportes/productos")}>Productos más vendidos</a
   >
   <a
     class="flex-1 px-4 py-2 font-semibold border-b-2 text-center transition-colors cursor-pointer"
-    class:border-blue-600={path.endsWith("/ventasDia")}
-    class:text-blue-700={path.endsWith("/ventasDia")}
+    class:border-green-600={path.endsWith("/ventasDia")}
+    class:text-green-700={path.endsWith("/ventasDia")}
     on:click={() => goto("/reportes/ventasDia")}>Ventas por día</a
   >
   <a
     class="flex-1 px-4 py-2 font-semibold border-b-2 text-center transition-colors cursor-pointer"
-    class:border-blue-600={path.endsWith("/historial")}
-    class:text-blue-700={path.endsWith("/historial")}
+    class:border-green-600={path.endsWith("/historial")}
+    class:text-green-700={path.endsWith("/historial")}
     on:click={() => goto("/reportes/historial")}>Historial de ventas</a
   >
 </div>

@@ -7,11 +7,18 @@
   let filtro = "";
   let carrito = [];
   let mensaje = "";
-  let tipoAlerta = "success"; // success, error, info
+  let tipoAlerta = "success"; 
   let codigoBarras = "";
   let mostrarScanner = false;
+  let autorizado = false;
 
   onMount(async () => {
+    const rol = localStorage.getItem("rol");
+    if (!rol) {
+      window.location.href = "/login";
+      return;
+    }
+    autorizado = true;
     try {
       productos = await api.getProductos();
     } catch (e) {
@@ -103,6 +110,7 @@ async function agregarPorCodigo(codigo) {
   }
 </script>
 
+{#if autorizado}
 <div class="p-6">
   <h1 class="text-3xl font-bold mb-6 text-gray-700">Realizar Venta</h1>
 
@@ -250,7 +258,7 @@ async function agregarPorCodigo(codigo) {
     </div>
   </div>
 </div>
-
+{/if}
 
 <style>
   .scanner-video {
