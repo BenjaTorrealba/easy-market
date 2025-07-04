@@ -1,8 +1,7 @@
 <script>
-  import Navbar from '$lib/Navbar.svelte';
-  import Sidebar from '$lib/Sidebar.svelte';
-  import '../app.css';
-
+  import Navbar from "$lib/Navbar.svelte";
+  import Sidebar from "$lib/Sidebar.svelte";
+  import "../app.css";
 </script>
 
 <div class="flex flex-col min-h-screen">

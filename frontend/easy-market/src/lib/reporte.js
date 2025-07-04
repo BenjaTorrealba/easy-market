@@ -1,13 +1,8 @@
 import { api } from "./api.js";
 
-/**
- * Devuelve el rango de fechas para la semana actual (últimos 7 días, incluyendo hoy).
- */
 export function getRangoSemana() {
   const hoy = new Date();
-  // Obtener el día de la semana (0=domingo, 1=lunes, ..., 6=sábado)
   const diaSemana = hoy.getDay();
-  // Calcular cuántos días restar para llegar al lunes
   const diffLunes = diaSemana === 0 ? 6 : diaSemana - 1;
   const lunes = new Date(hoy);
   lunes.setDate(hoy.getDate() - diffLunes);
@@ -15,7 +10,9 @@ export function getRangoSemana() {
   domingo.setDate(lunes.getDate() + 6);
 
   const fecha_inicio = lunes.toISOString().slice(0, 10);
-  const fecha_fin = new Date(domingo.getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10); // exclusivo
+  const fecha_fin = new Date(domingo.getTime() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10); // exclusivo
 
   return { fecha_inicio, fecha_fin };
 }
@@ -25,6 +22,7 @@ export function getRangoSemana() {
  * @param {Array} historialVentas - Array de ventas con campo fecha y total.
  * @param {String} fecha_inicio - Fecha de inicio (YYYY-MM-DD)
  */
+
 export function agruparVentasPorDia(historialVentas, fecha_inicio) {
   const dias = [
     "Lunes",
@@ -53,9 +51,6 @@ export function agruparVentasPorDia(historialVentas, fecha_inicio) {
   return Object.values(ventasPorDia);
 }
 
-/**
- * Obtiene las ventas de la semana agrupadas por día, listo para usar en dashboard o gráficos.
- */
 export async function getVentasSemana() {
   try {
     const { fecha_inicio, fecha_fin } = getRangoSemana();
@@ -69,7 +64,3 @@ export async function getVentasSemana() {
     return [];
   }
 }
-
-/**
- * Otros métodos de reporte pueden ir aquí...
- */
