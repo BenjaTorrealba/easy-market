@@ -31,32 +31,32 @@
   });
 </script>
 
-<h2 class="text-xl font-bold mb-4 text-blue-800">Historial de ventas</h2>
+<h2 class="text-xl font-bold mb-4 text-green-700">Historial de ventas</h2>
 <div class="flex gap-4 mb-4">
   <div>
     <label class="block text-sm font-semibold mb-1">Desde:</label>
-    <input type="date" bind:value={filtroInicio} class="border rounded px-2 py-1" />
+    <input type="date" bind:value={filtroInicio} class="border border-gray-400 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-200" />
   </div>
   <div>
     <label class="block text-sm font-semibold mb-1">Hasta:</label>
-    <input type="date" bind:value={filtroFin} class="border rounded px-2 py-1" />
+    <input type="date" bind:value={filtroFin} class="border border-gray-400 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-200" />
   </div>
-  <button class="bg-blue-600 text-white px-4 py-2 rounded mt-5" on:click={filtrarHistorial}>
+  <button class="bg-green-300 hover:bg-green-500 text-gray-700 px-4 py-2 rounded mt-5 transition" on:click={filtrarHistorial}>
     Filtrar
   </button>
 </div>
 <div class="overflow-x-auto">
-  <table class="min-w-full rounded-lg shadow border border-blue-200 bg-white">
+  <table class="min-w-full rounded-lg shadow border border-green-200 bg-white">
     <thead>
       <tr>
-        <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">ID</th>
-        <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Fecha</th>
-        <th class="px-6 py-3 text-left bg-blue-100 text-blue-800 font-semibold">Total</th>
+        <th class="px-6 py-3 text-left bg-green-100 text-green-700 font-semibold">ID</th>
+        <th class="px-6 py-3 text-left bg-green-100 text-green-700 font-semibold">Fecha</th>
+        <th class="px-6 py-3 text-left bg-green-100 text-green-700 font-semibold">Total</th>
       </tr>
     </thead>
     <tbody>
       {#each historialFiltrado as venta}
-        <tr class="hover:bg-blue-100/40 transition">
+        <tr class="hover:bg-green-100/40 transition">
           <td class="border-t px-6 py-3">{venta.id}</td>
           <td class="border-t px-6 py-3">{formatearFechaHora(venta.fecha)}</td>
           <td class="border-t px-6 py-3">${venta.total.toLocaleString()}</td>

@@ -1,10 +1,10 @@
-
-
-<nav class="bg-white dark:bg-gray-800 shadow-md h-16 px-6 flex items-center justify-between">
+<nav
+  class="bg-white dark:bg-gray-800 shadow-md h-16 px-6 flex items-center justify-between"
+>
   <div class="text-2xl font-bold text-emerald-600 dark:text-white">
     <a href="/">Easy Market</a>
   </div>
-  
+
   <div class="flex items-center space-x-4">
     <a
       href="/login"
@@ -12,6 +12,5 @@
     >
       Iniciar sesión
     </a>
-    
   </div>
 </nav>

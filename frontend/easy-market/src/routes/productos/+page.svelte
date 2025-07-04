@@ -5,6 +5,7 @@
   import Alerta from "$lib/Alerta.svelte";
   import { api } from "$lib/api.js";
   import { onMount } from "svelte";
+  import Icon from "@iconify/svelte";
 
   let productos = [];
   let categorias = [];
@@ -16,7 +17,7 @@
   let productoAEliminar = null;
   let filtro = "";
 
-    $: productosFiltrados = productos.filter(p =>
+  $: productosFiltrados = productos.filter((p) =>
     p.nombre.toLowerCase().includes(filtro.toLowerCase())
   );
 
@@ -36,7 +37,7 @@
     productoAEliminar = null;
   }
   onMount(async () => {
-    const Quagga = (await import('quagga')).default;
+    const Quagga = (await import("quagga")).default;
     categorias = await api.getCategorias();
     productos = await api.getProductos();
   });
@@ -54,10 +55,12 @@
       setTimeout(() => (mostrarAlerta = false), 2000);
     }
   }
-  
+
   async function guardarEdicionProducto(actualizado) {
     await api.updateProducto(actualizado.id, actualizado);
-    productos = productos.map(p => p.id === actualizado.id ? actualizado : p);
+    productos = productos.map((p) =>
+      p.id === actualizado.id ? actualizado : p
+    );
     mensajeAlerta = "¡Producto actualizado!";
     mostrarAlerta = true;
     setTimeout(() => (mostrarAlerta = false), 2000);
@@ -66,27 +69,22 @@
     productoEditar = producto;
   }
 
-
-
   async function eliminarProducto(producto) {
-      try {
-        await api.request(`/productos?id=${producto.id}`, { method: "DELETE" });
-        productos = productos.filter(p => p.id !== producto.id);
-        mensajeAlerta = "Producto eliminado";
-        mostrarAlerta = true;
-        setTimeout(() => (mostrarAlerta = false), 2000);
-      } catch (e) {
-        mensajeAlerta = "Error al eliminar producto";
-        mostrarAlerta = true;
-        setTimeout(() => (mostrarAlerta = false), 2000);
-      }
-    
+    try {
+      await api.request(`/productos?id=${producto.id}`, { method: "DELETE" });
+      productos = productos.filter((p) => p.id !== producto.id);
+      mensajeAlerta = "Producto eliminado";
+      mostrarAlerta = true;
+      setTimeout(() => (mostrarAlerta = false), 2000);
+    } catch (e) {
+      mensajeAlerta = "Error al eliminar producto";
+      mostrarAlerta = true;
+      setTimeout(() => (mostrarAlerta = false), 2000);
+    }
   }
 
-
-
   function obtenerNombreCategoria(id) {
-    const cat = categorias.find(c => c.id === id);
+    const cat = categorias.find((c) => c.id === id);
     return cat ? cat.nombre : "-";
   }
 </script>
@@ -98,7 +96,6 @@
     onCancel={cancelarEliminar}
   />
 {/if}
-
 
 {#if mostrarAlerta}
   <Alerta mensaje={mensajeAlerta} tipo="success" />
@@ -121,16 +118,18 @@
 {/if}
 
 <div class="p-8 max-w-6xl mx-auto">
-  <h1 class="text-3xl font-bold mb-6 text-gray-800">Lista de Productos</h1>
-  <div class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+  <h1 class="text-3xl font-bold mb-6 text-gray-700">Lista de Productos</h1>
+  <div
+    class="mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2"
+  >
     <input
       type="text"
       placeholder="Buscar producto..."
-      class="w-full md:w-1/3 px-3 py-2 border rounded-md focus:outline-none focus:ring"
+      class="w-full md:w-1/3 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-200"
       bind:value={filtro}
     />
     <button
-      class="bg-indigo-600 hover:bg-indigo-800 text-white px-6 py-2 rounded-md text-sm transition"
+      class="bg-green-300 hover:bg-green-500 text-gray-700 px-6 py-2 rounded-md text-sm transition"
       on:click={() => (mostrarModal = true)}
     >
       Agregar Producto
@@ -138,7 +137,7 @@
   </div>
   <div class="overflow-x-auto">
     <table class="w-full bg-white rounded-2xl shadow-lg overflow-hidden">
-      <thead class="bg-gray-100 text-gray-700 text-sm uppercase">
+      <thead class="bg-gray-100 text-gray-800 text-sm uppercase">
         <tr>
           <th class="py-4 px-6 text-left">ID</th>
           <th class="py-4 px-6 text-left">Nombre</th>
@@ -150,21 +149,25 @@
         </tr>
       </thead>
       <tbody class="text-gray-800 text-base">
-        {#each productosFiltrados as producto}
-          <tr class="border-t border-gray-200 hover:bg-gray-50 transition">
+        {#each productosFiltrados as producto, i}
+          <tr
+            class={`border-t border-gray-100 transition ${i % 2 === 0 ? "bg-white" : "bg-gray-100"} hover:bg-green-50`}
+          >
             <td class="py-4 px-6">{producto.id}</td>
             <td class="py-4 px-6">{producto.nombre}</td>
-            <td class="py-4 px-6">{obtenerNombreCategoria(producto.categoria_id)}</td>
+            <td class="py-4 px-6"
+              >{obtenerNombreCategoria(producto.categoria_id)}</td
+            >
             <td class="py-4 px-6">${producto.precio.toLocaleString()}</td>
             <td class="py-4 px-6">{producto.stock}</td>
             <td class="py-4 px-6">{producto.codigo_barras}</td>
             <td class="py-4 px-6 flex gap-2 items-center">
               <button
-                class="flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded transition"
+                class="flex items-center gap-1 bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded transition"
                 title="Editar producto"
                 on:click={() => abrirEditarProducto(producto)}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6a2 2 0 002-2v-6a2 2 0 00-2-2h-6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>
+                <Icon icon="mdi:pencil" class="h-4 w-4" />
                 Editar
               </button>
               <button
@@ -172,16 +175,17 @@
                 title="Eliminar producto"
                 on:click={() => pedirConfirmacionEliminar(producto)}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                <Icon icon="mdi:delete" class="h-4 w-4" />
                 Eliminar
               </button>
-
             </td>
           </tr>
         {/each}
         {#if productosFiltrados.length === 0}
           <tr>
-            <td colspan="7" class="text-gray-400 text-center py-6">No hay productos.</td>
+            <td colspan="7" class="text-gray-400 text-center py-6"
+              >No hay productos.</td
+            >
           </tr>
         {/if}
       </tbody>

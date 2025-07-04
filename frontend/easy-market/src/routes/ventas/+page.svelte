@@ -104,7 +104,7 @@ async function agregarPorCodigo(codigo) {
 </script>
 
 <div class="p-6">
-  <h1 class="text-2xl font-bold mb-4">Realizar Venta</h1>
+  <h1 class="text-3xl font-bold mb-6 text-gray-700">Realizar Venta</h1>
 
   <div class="mb-6">
     <div
@@ -128,7 +128,7 @@ async function agregarPorCodigo(codigo) {
     </div>
     <div class="flex gap-2 mt-4 mb-2">
       <button
-        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+        class="bg-green-300 hover:bg-green-500 text-gray-700 px-4 py-2 rounded transition"
         on:click={iniciarEscaner}
         disabled={mostrarScanner}
         type="button"
@@ -136,7 +136,7 @@ async function agregarPorCodigo(codigo) {
         Iniciar escáner
       </button>
       <button
-        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+        class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded transition"
         on:click={detenerEscaner}
         disabled={!mostrarScanner}
         type="button"
@@ -168,14 +168,14 @@ async function agregarPorCodigo(codigo) {
       <input
         type="text"
         placeholder="Buscar producto..."
-        class="w-full mb-4 px-3 py-2 border rounded-md focus:outline-none focus:ring"
+        class="w-full mb-4 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-green-200"
         bind:value={filtro}
       />
 
       <div class="space-y-2">
         {#each productosFiltrados as producto}
           <div
-            class="flex items-center justify-between border rounded-md px-3 py-2"
+            class="flex items-center justify-between border border-gray-400 rounded-md px-3 py-2"
           >
             <div>
               <p class="font-medium">{producto.nombre}</p>
@@ -184,7 +184,7 @@ async function agregarPorCodigo(codigo) {
               </p>
             </div>
             <button
-              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
+              class="bg-green-300 hover:bg-green-500 text-gray-700 px-3 py-1 rounded-md transition"
               on:click={() => agregarAlCarrito(producto)}
             >
               +
@@ -203,7 +203,7 @@ async function agregarPorCodigo(codigo) {
       <div class="space-y-2">
         {#each carrito as item}
           <div
-            class="flex items-center justify-between border px-3 py-2 rounded-md"
+            class="flex items-center justify-between border border-gray-400 px-3 py-2 rounded-md"
           >
             <div>
               <p class="font-medium">
@@ -212,7 +212,7 @@ async function agregarPorCodigo(codigo) {
                   type="number"
                   min="1"
                   max={item.stock}
-                  class="w-16 ml-2 border rounded px-1 py-0.5 text-center"
+                  class="w-16 ml-2 border border-gray-400 rounded px-1 py-0.5 text-center focus:outline-none focus:ring-2 focus:ring-green-200"
                   bind:value={item.cantidad}
                   on:input={(e) => actualizarCantidad(item.id, +e.target.value)}
                 />
@@ -225,7 +225,7 @@ async function agregarPorCodigo(codigo) {
               </p>
             </div>
             <button
-              class="text-red-600 hover:text-red-800 text-sm"
+              class="text-red-700 hover:text-red-900 text-sm transition"
               on:click={() => eliminarDelCarrito(item.id)}
             >
               Eliminar
@@ -239,7 +239,7 @@ async function agregarPorCodigo(codigo) {
         <div class="mt-4 border-t pt-4">
           <p class="text-lg font-semibold">Total: ${total.toLocaleString()}</p>
           <button
-            class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+            class="mt-2 w-full bg-green-300 hover:bg-green-500 text-gray-700 py-2 rounded-md font-semibold transition"
             on:click={confirmarVenta}
             disabled={carrito.length === 0}
           >

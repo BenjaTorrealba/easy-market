@@ -51,6 +51,12 @@ class ApiClient {
       body: JSON.stringify(pedido),
     });
   }
+  async deletePedido(id) {
+    return this.request(`/pedidos?id=${id}`, {
+      method: "DELETE",
+      
+    });
+  }
   async getProductos() {
     return this.request("/productos");
   }

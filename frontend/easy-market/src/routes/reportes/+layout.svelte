@@ -24,7 +24,8 @@
 
 <!-- DASHBOARD HEADER -->
 <div class="p-4 pb-0">
-  <h1 class="text-3xl font-bold mb-6 text-blue-900">Dashboard de Reportes</h1>
+  <!-- Reemplaza el encabezado actual -->
+  <h1 class="text-3xl font-bold mb-6 text-gray-700">Dashboard de Reportes</h1>
 </div>
 
 <!-- MÉTRICAS PRINCIPALES -->
@@ -33,8 +34,7 @@
     class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-6 shadow flex flex-col items-center"
   >
     <span class="text-5xl font-bold text-blue-700">{totalVendidos}</span>
-    <span class="text-lg text-blue-900 mt-2">Ventas realizadas esta semana</span
-    >
+    <span class="text-lg text-blue-900 mt-2">Ventas realizadas esta semana</span>
   </div>
   <div
     class="bg-green-50 border-l-4 border-green-400 rounded-lg p-6 shadow flex flex-col items-center"
@@ -47,10 +47,10 @@
   <div
     class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-6 shadow flex flex-col items-center"
   >
-    <span class="text-5xl font-bold text-yellow-700"
+    <span class="text-5xl font-bold text-yellow-800"
       >{productosBajoStock.length}</span
     >
-    <span class="text-lg text-yellow-900 mt-2">Productos con bajo stock</span>
+    <span class="text-lg text-yellow-800 mt-2">Productos con bajo stock</span>
   </div>
 </div>
 

@@ -83,17 +83,17 @@
       class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
       on:click={closeAndReset}>&times;</button
     >
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">
+    <h2 class="text-xl font-bold text-gray-700 mb-4">
       Agregar nuevo producto
     </h2>
     <div class="space-y-4">
       <input
-        class="border rounded px-3 py-2 focus:outline-none focus:ring w-full"
+        class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
         placeholder="Nombre"
         bind:value={nombre}
       />
       <select
-        class="border rounded px-3 py-2 focus:outline-none focus:ring w-full"
+        class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
         bind:value={categoriaID}
       >
         {#each categorias as cat}
@@ -103,26 +103,26 @@
       <input
         type="number"
         min="0"
-        class="border rounded px-3 py-2 focus:outline-none focus:ring w-full"
+        class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
         placeholder="Precio"
         bind:value={precio}
       />
       <input
         type="number"
         min="0"
-        class="border rounded px-3 py-2 focus:outline-none focus:ring w-full"
+        class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
         placeholder="Stock"
         bind:value={stock}
       />
       <input
-        class="border rounded px-3 py-2 focus:outline-none focus:ring w-full"
+        class="border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200 w-full"
         placeholder="Código de barras"
         bind:value={codigoBarras}
       />
       <div class="flex gap-2 mb-2">
         <button
           type="button"
-          class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
+          class="bg-green-300 hover:bg-green-500 text-gray-700 px-4 py-2 rounded w-full transition"
           on:click={iniciarEscaner}
           disabled={mostrarScanner}
         >
@@ -130,7 +130,7 @@
         </button>
         <button
           type="button"
-          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded w-full"
+          class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded w-full transition"
           on:click={detenerEscaner}
           disabled={!mostrarScanner}
         >
@@ -141,7 +141,7 @@
         <div id="scanner-container" class="scanner-video"></div>
       {/if}
       <button
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded shadow font-semibold transition w-full"
+        class="bg-green-300 hover:bg-green-500 text-gray-700 px-6 py-2 rounded shadow font-semibold transition w-full"
         on:click={agregar}
       >
         Agregar producto

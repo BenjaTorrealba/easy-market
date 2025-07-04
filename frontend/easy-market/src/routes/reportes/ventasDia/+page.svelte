@@ -22,11 +22,11 @@
         datasets: [{
           label: 'Total vendido ($)',
           data: ventasSemana.map(v => v.total),
-          backgroundColor: 'rgba(37, 99, 235, 0.85)',
-          borderColor: 'rgba(30, 64, 175, 1)',
+          backgroundColor: 'rgba(74, 222, 128, 0.85)', // bg-green-300
+          borderColor: 'rgba(21, 128, 61, 1)',         // green-700
           borderWidth: 2,
           borderRadius: 8,
-          hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
+          hoverBackgroundColor: 'rgba(34, 197, 94, 1)',// green-500
         }]
       },
       options: {
@@ -42,7 +42,7 @@
           datalabels: {
             anchor: 'end',
             align: 'start',
-            color: '#1e40af',
+            color: '#15803d', // text-green-700
             font: { weight: 'bold', size: 16 },
             formatter: value => value === 0 ? '' : `$${value.toLocaleString()}`
           },
